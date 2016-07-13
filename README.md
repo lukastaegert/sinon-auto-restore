@@ -1,1 +1,1 @@
-# sinon-auto-rewire
+# sinon-auto-restore

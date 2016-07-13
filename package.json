@@ -1,19 +1,24 @@
 {
-  "name": "sinon-auto-rewire",
-  "version": "0.1.0",
+  "name": "sinon-auto-restore",
+  "version": "0.1.1",
   "description": "Automatically restore stubs and spies after tests",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha"
   },
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url": "git+https:/github.com/lukastaegert/sinon-auto-restore.git"
   },
   "keywords": [
     "sinon"
   ],
   "author": "Lukas Taegert <lukas.taegert@tngtech.com>",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukastaegert/sinon-auto-restore/issues"
+  },
+  "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
