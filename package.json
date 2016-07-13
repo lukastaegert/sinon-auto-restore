@@ -1,0 +1,23 @@
+{
+  "name": "sinon-auto-rewire",
+  "version": "0.1.0",
+  "description": "Automatically restore stubs and spies after tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "keywords": [
+    "sinon"
+  ],
+  "author": "Lukas Taegert <lukas.taegert@tngtech.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "sinon": "^1.17.4",
+    "sinon-chai": "^2.8.0"
+  }
+}
