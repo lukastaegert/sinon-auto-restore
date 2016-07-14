@@ -1,5 +1,6 @@
 module.exports.onObject = function(target, autoReset, afterEachHook) {
   var activeStubs = [];
+  var activeReplacements = [];
 
   if (typeof autoReset === 'undefined') {
     autoReset = true;
@@ -14,7 +15,11 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
         currentStub.restore();
       }
     });
+    activeReplacements.forEach(function(currentReplacement) {
+      target[currentReplacement.key] = currentReplacement.value;
+    });
     activeStubs = [];
+    activeReplacements = [];
   }
 
   if (autoReset) {
@@ -31,10 +36,18 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
     return this;
   }
 
+  function replace(key, replacement) {
+    activeReplacements.push({key: key, value: target[key]});
+    target[key] = replacement;
+    return this;
+  }
+
   return {
     stub: stub,
 
     spy: spy,
+
+    replace: replace,
 
     reset: function() {
       reset();

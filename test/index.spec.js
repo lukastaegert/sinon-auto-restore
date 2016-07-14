@@ -16,7 +16,8 @@ describe('The sinon auto rewire test helper', function() {
     global.sinon = sinon;
     testObject = {
       field1: function() {return 1},
-      field2: function() {return 2}
+      field2: function() {return 2},
+      field3: 'my string'
     };
     onAfterEach = null;
     oldSpy = sinon.spy;
@@ -45,11 +46,18 @@ describe('The sinon auto rewire test helper', function() {
     expect(testObject.field1.restore).to.be.a('function');
   });
 
-  it('should remove all stubs on reset', function() {
-    onObject(testObject).stub('field1').spy('field2').reset();
+  it('should replace a given field of an object on replace', function() {
+    onObject(testObject).replace('field1', 'replacement');
+
+    expect(testObject.field1).to.equal('replacement');
+  });
+
+  it('should remove all stubs, spies and replacements on reset', function() {
+    onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement').reset();
 
     expect(testObject.field1.restore).not.to.be.a('function');
     expect(testObject.field2.restore).not.to.be.a('function');
+    expect(testObject.field3).to.equal('my string');
   });
 
   it('should not register a callback with the afterEachHook if autoReset is false', function() {
@@ -64,13 +72,14 @@ describe('The sinon auto rewire test helper', function() {
     expect(onAfterEach).to.be.a('function');
   });
 
-  it('should restore all stubbed fields on afterEach if autoreset is true', function() {
-    onObject(testObject, true, afterEachHook).stub('field1').spy('field2');
+  it('should restore all stubbed, spied and replaced fields on afterEach if autoreset is true', function() {
+    onObject(testObject, true, afterEachHook).stub('field1').spy('field2').replace('field3', 'replacement');
 
     onAfterEach();
 
     expect(testObject.field1.restore).not.to.be.a('function');
     expect(testObject.field2.restore).not.to.be.a('function');
+    expect(testObject.field3).to.equal('my string');
   });
 
   it('should register a callback with a global afterEach function if autoReset is true and no afterEachHook is provided', function() {
@@ -86,13 +95,13 @@ describe('The sinon auto rewire test helper', function() {
   it('should restore all replaced variables on global afterEach if autoreset is true and no afterEachHook is provided', function() {
     var oldAfterEach = global.afterEach;
     global.afterEach = afterEachHook;
-    onObject(testObject, true).stub('field1').spy('field2');
+    onObject(testObject, true).stub('field1').spy('field2').replace('field3', 'replacement');
 
     onAfterEach();
 
     expect(testObject.field1.restore).not.to.be.a('function');
     expect(testObject.field2.restore).not.to.be.a('function');
+    expect(testObject.field3).to.equal('my string');
     global.afterEach = oldAfterEach;
   });
-
 });
