@@ -302,19 +302,19 @@ describe('fromConstructor', function() {
       });
 
       it('should throw an error if more than one instance has been created', function() {
-        var instance1 = new StubConstructor();
-        var instance2 = new StubConstructor();
+        new StubConstructor();
+        new StubConstructor();
         expect(StubConstructor.getInstance).to.throw(/2 instances/);
       });
 
       it('should return an instance with a given index', function() {
-        var instance1 = new StubConstructor();
+        new StubConstructor();
         var instance2 = new StubConstructor();
         expect(StubConstructor.getInstance(1)).to.equal(instance2);
       });
 
       it('should throw an error if not enough instances exist', function() {
-        var instance = new StubConstructor();
+        new StubConstructor();
         expect(function() {StubConstructor.getInstance(1)}).to.throw(/1 instances/);
       });
     });
@@ -331,8 +331,8 @@ describe('fromConstructor', function() {
       });
 
       it('should return a list of constructor arguments', function() {
-        var instance1 = new StubConstructor('foo', 'bar');
-        var instance2 = new StubConstructor('baz', 'bla');
+        new StubConstructor('foo', 'bar');
+        new StubConstructor('baz', 'bla');
         expect(StubConstructor.getInstancesArgs()).to.deep.equal([['foo', 'bar'], ['baz', 'bla']]);
       });
     });
@@ -345,7 +345,7 @@ describe('fromConstructor', function() {
       });
 
       it('should return the arguments of a single instance if one has been created', function() {
-        var instance = new StubConstructor('foo', 'bar');
+        new StubConstructor('foo', 'bar');
         expect(StubConstructor.getInstanceArgs()).to.deep.equal(['foo', 'bar']);
       });
 
@@ -354,19 +354,19 @@ describe('fromConstructor', function() {
       });
 
       it('should throw an error if more than one instance has been created', function() {
-        var instance1 = new StubConstructor('foo', 'bar');
-        var instance2 = new StubConstructor('baz', 'bla');
+        new StubConstructor('foo', 'bar');
+        new StubConstructor('baz', 'bla');
         expect(StubConstructor.getInstanceArgs).to.throw(/2 instances/);
       });
 
       it('should return the arguments of an instance with a given index', function() {
-        var instance1 = new StubConstructor('foo', 'bar');
-        var instance2 = new StubConstructor('baz', 'bla');
+        new StubConstructor('foo', 'bar');
+        new StubConstructor('baz', 'bla');
         expect(StubConstructor.getInstanceArgs(1)).to.deep.equal(['baz', 'bla']);
       });
 
       it('should throw an error if not enough instances exist', function() {
-        var instance = new StubConstructor('foo', 'bar');
+        new StubConstructor('foo', 'bar');
         expect(function() {StubConstructor.getInstanceArgs(1)}).to.throw(/1 instances/);
       });
     });
