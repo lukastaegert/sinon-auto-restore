@@ -2,10 +2,7 @@ var sinonAutoRestore = require('../index');
 var onObject = sinonAutoRestore.onObject;
 var fromConstructor = sinonAutoRestore.fromConstructor;
 
-var chai = require('chai');
-chai.use(require('sinon-chai'));
-var expect = chai.expect;
-
+var expect = require('chai').expect;
 var td = require('testdouble');
 var verify = td.verify;
 var isA = td.matchers.isA;

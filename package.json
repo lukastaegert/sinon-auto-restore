@@ -4,7 +4,7 @@
   "description": "Automatically restore stubs and spies after tests",
   "main": "index.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,9 +21,11 @@
   "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "devDependencies": {
     "chai": "^3.5.0",
+    "ghooks": "^1.3.2",
     "mocha": "^2.5.3",
-    "sinon": "^1.17.4",
-    "sinon-chai": "^2.8.0",
     "testdouble": "^1.6.0"
+  },
+  "dependencies": {
+    "ramda": "^0.22.1"
   }
 }
