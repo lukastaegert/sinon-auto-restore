@@ -214,20 +214,18 @@ describe('fromConstructor', function() {
   });
 
   describe('getStub', function() {
-    var StubConstructor;
-
     it('should return a function', function() {
       expect(fromConstructor(TestConstructor).getStub()).to.be.a('function');
     });
 
     it('should return a constructor which is also a spy', function() {
-      StubConstructor = fromConstructor(TestConstructor).getStub();
+      var StubConstructor = fromConstructor(TestConstructor).getStub();
 
       expect(StubConstructor).to.have.property('isSpiedOn', true);
     });
 
     it('should return a constructor that creates an object with the given methods', function() {
-      StubConstructor = fromConstructor(TestConstructor).getStub();
+      var StubConstructor = fromConstructor(TestConstructor).getStub();
       var stubbedObject = new StubConstructor();
 
       expect(stubbedObject.originalConstructorCalled).to.be.undefined;
@@ -266,6 +264,110 @@ describe('fromConstructor', function() {
         expect(stubbedObject.otherField1.isSpiedOn).to.be.true;
         expect(stubbedObject.otherField2()).to.equal('stubResult2');
         expect(stubbedObject.otherField2.isSpiedOn).to.be.true;
+      });
+    });
+
+    describe('getInstances', function() {
+      var StubConstructor;
+
+      beforeEach(function() {
+        StubConstructor = fromConstructor(TestConstructor).getStub();
+      });
+
+      it('should return an empty list if there are no instances', function() {
+        expect(StubConstructor.getInstances()).to.deep.equal([]);
+      });
+
+      it('should return a list of instances', function() {
+        var instance1 = new StubConstructor();
+        var instance2 = new StubConstructor();
+        expect(StubConstructor.getInstances()).to.deep.equal([instance1, instance2]);
+      });
+    });
+
+    describe('getInstance', function() {
+      var StubConstructor;
+
+      beforeEach(function() {
+        StubConstructor = fromConstructor(TestConstructor).getStub();
+      });
+
+      it('should return a single instance if one has been created', function() {
+        var instance = new StubConstructor();
+        expect(StubConstructor.getInstance()).to.equal(instance);
+      });
+
+      it('should throw an error if no instance has been created', function() {
+        expect(StubConstructor.getInstance).to.throw(/0 instances/);
+      });
+
+      it('should throw an error if more than one instance has been created', function() {
+        var instance1 = new StubConstructor();
+        var instance2 = new StubConstructor();
+        expect(StubConstructor.getInstance).to.throw(/2 instances/);
+      });
+
+      it('should return an instance with a given index', function() {
+        var instance1 = new StubConstructor();
+        var instance2 = new StubConstructor();
+        expect(StubConstructor.getInstance(1)).to.equal(instance2);
+      });
+
+      it('should throw an error if not enough instances exist', function() {
+        var instance = new StubConstructor();
+        expect(function() {StubConstructor.getInstance(1)}).to.throw(/1 instances/);
+      });
+    });
+
+    describe('getInstancesArgs', function() {
+      var StubConstructor;
+
+      beforeEach(function() {
+        StubConstructor = fromConstructor(TestConstructor).getStub();
+      });
+
+      it('should return an empty list if there are no instances', function() {
+        expect(StubConstructor.getInstancesArgs()).to.deep.equal([]);
+      });
+
+      it('should return a list of constructor arguments', function() {
+        var instance1 = new StubConstructor('foo', 'bar');
+        var instance2 = new StubConstructor('baz', 'bla');
+        expect(StubConstructor.getInstancesArgs()).to.deep.equal([['foo', 'bar'], ['baz', 'bla']]);
+      });
+    });
+
+    describe('getInstanceArgs', function() {
+      var StubConstructor;
+
+      beforeEach(function() {
+        StubConstructor = fromConstructor(TestConstructor).getStub();
+      });
+
+      it('should return the arguments of a single instance if one has been created', function() {
+        var instance = new StubConstructor('foo', 'bar');
+        expect(StubConstructor.getInstanceArgs()).to.deep.equal(['foo', 'bar']);
+      });
+
+      it('should throw an error if no instance has been created', function() {
+        expect(StubConstructor.getInstanceArgs).to.throw(/0 instances/);
+      });
+
+      it('should throw an error if more than one instance has been created', function() {
+        var instance1 = new StubConstructor('foo', 'bar');
+        var instance2 = new StubConstructor('baz', 'bla');
+        expect(StubConstructor.getInstanceArgs).to.throw(/2 instances/);
+      });
+
+      it('should return the arguments of an instance with a given index', function() {
+        var instance1 = new StubConstructor('foo', 'bar');
+        var instance2 = new StubConstructor('baz', 'bla');
+        expect(StubConstructor.getInstanceArgs(1)).to.deep.equal(['baz', 'bla']);
+      });
+
+      it('should throw an error if not enough instances exist', function() {
+        var instance = new StubConstructor('foo', 'bar');
+        expect(function() {StubConstructor.getInstanceArgs(1)}).to.throw(/1 instances/);
       });
     });
   });
