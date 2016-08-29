@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https:/github.com/lukastaegert/sinon-auto-restore.git"
+    "url": "git+https://github.com/lukastaegert/sinon-auto-restore.git"
   },
   "keywords": [
     "sinon"
