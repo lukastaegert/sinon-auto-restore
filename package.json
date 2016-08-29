@@ -2,9 +2,18 @@
   "name": "sinon-auto-restore",
   "version": "0.3.0",
   "description": "Automatically restore stubs and spies after tests",
+  "author": "Lukas Taegert <lukas.taegert@tngtech.com>",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
+  },
+  "config": {
+    "ghooks": {
+      "pre-push": "npm test",
+      "post-merge": "npm install && npm prune",
+      "post-rewrite": "npm install && npm prune"
+    }
   },
   "repository": {
     "type": "git",
@@ -13,8 +22,6 @@
   "keywords": [
     "sinon"
   ],
-  "author": "Lukas Taegert <lukas.taegert@tngtech.com>",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lukastaegert/sinon-auto-restore/issues"
   },
