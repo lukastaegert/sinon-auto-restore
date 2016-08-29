@@ -1,3 +1,5 @@
+var R = require('Ramda');
+
 function forEachFunctionInObject(object, callback) {
   for (var key in object) {
     //noinspection JSUnfilteredForInLoop
@@ -14,11 +16,9 @@ function getArgumentsArray(args) {
   return argsArray;
 }
 
-function replaceMethodWithStub(object) {
-  return function(methodName) {
-    object[methodName] = sinon.stub();
-  }
-}
+var replaceMethodWithStub = R.curry(function(object, methodName) {
+  object[methodName] = sinon.stub();
+});
 
 module.exports.onObject = function(target, autoReset, afterEachHook) {
   var activeStubs = {};

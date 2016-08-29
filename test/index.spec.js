@@ -77,8 +77,7 @@ describe('onObject', function() {
     });
 
     it('should stub implementing a given functionality', function() {
-      function replacementFunction() {}
-
+      var replacementFunction = function() {};
       onObject(testObject).stub('field1', replacementFunction);
 
       verify(sinon.stub(testObject, 'field1', replacementFunction), {times: 1});
@@ -92,10 +91,8 @@ describe('onObject', function() {
     });
 
     it('should allow stubbing a list of methods while also providing functionalities', function() {
-      function replacementFunction1() {}
-
-      function replacementFunction2() {}
-
+      var replacementFunction1 = function() {};
+      var replacementFunction2 = function() {};
       onObject(testObject).stub('field1', replacementFunction1, 'field2', replacementFunction2);
 
       verify(sinon.stub(testObject, 'field1', replacementFunction1), {times: 1});
@@ -257,6 +254,18 @@ describe('fromConstructor', function() {
 
         expect(stubbedObject.otherField()).to.equal('stubResult');
         expect(stubbedObject.otherField.isSpiedOn).to.be.true;
+      });
+
+      it('should allow stubbing a list of methods while also providing functionalities', function() {
+        var replacementFunction1 = function() {return 'stubResult1';};
+        var replacementFunction2 = function() {return 'stubResult2';};
+        var stubbedObject = new (fromConstructor(TestConstructor).getStub()
+          .stub('otherField1', replacementFunction1, 'otherField2', replacementFunction2))();
+
+        expect(stubbedObject.otherField1()).to.equal('stubResult1');
+        expect(stubbedObject.otherField1.isSpiedOn).to.be.true;
+        expect(stubbedObject.otherField2()).to.equal('stubResult2');
+        expect(stubbedObject.otherField2.isSpiedOn).to.be.true;
       });
     });
   });
