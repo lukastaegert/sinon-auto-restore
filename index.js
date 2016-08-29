@@ -1,4 +1,4 @@
-var R = require('Ramda');
+var R = require('ramda');
 
 function forEachFunctionInObject(object, callback) {
   for (var key in object) {
