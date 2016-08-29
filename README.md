@@ -1,5 +1,5 @@
 # sinon-auto-restore
-https://travis-ci.org/lukastaegert/sinon-auto-restore.svg?branch=master
+[![Build Status](https://travis-ci.org/lukastaegert/sinon-auto-restore.svg?branch=master)](https://travis-ci.org/lukastaegert/sinon-auto-restore)
 
 A simple library to make creating Sinon spies and stubs in a Mocha setup easier. This library provides auto-restore functionality similar to what is built into Jasmine.
 
