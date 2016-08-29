@@ -1,37 +1,39 @@
+/* global sinon, afterEach */
 var R = require('ramda');
 
-function forEachFunctionInObject(object, callback) {
-  for (var key in object) {
-    //noinspection JSUnfilteredForInLoop
+var replaceMethodWithStub = R.curry(function(object, methodName) {
+  object[methodName] = sinon.stub();
+});
+
+function forEachFunctionInObject(object, appliedFunction) {
+  var key;
+
+  for (key in object) {
+    // noinspection JSUnfilteredForInLoop
     if (typeof object[key] === 'function') {
-      //noinspection JSUnfilteredForInLoop
-      callback(key);
+      // noinspection JSUnfilteredForInLoop
+      appliedFunction(key);
     }
   }
 }
 
 function getArgumentsArray(args) {
   var argsArray = [];
+
   argsArray.push.apply(argsArray, args);
   return argsArray;
 }
-
-var replaceMethodWithStub = R.curry(function(object, methodName) {
-  object[methodName] = sinon.stub();
-});
 
 module.exports.onObject = function(target, autoReset, afterEachHook) {
   var activeStubs = {};
   var activeReplacements = {};
 
-  if (typeof autoReset === 'undefined') {
-    autoReset = true;
-  }
-  if (typeof afterEachHook === 'undefined') {
-    afterEachHook = afterEach;
-  }
-  if (autoReset) {
-    afterEachHook(reset);
+  if (typeof autoReset === 'undefined' || autoReset) {
+    if (typeof afterEachHook === 'undefined') {
+      afterEach(reset);
+    } else {
+      afterEachHook(reset);
+    }
   }
 
   function reset() {
@@ -42,7 +44,9 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
   }
 
   function restoreKeysOf(object) {
-    for (var key in object) {
+    var key;
+
+    for (key in object) {
       if (object.hasOwnProperty(key)) {
         restore(key);
       }
@@ -60,26 +64,43 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
     }
   }
 
+  function handleStubArgs(args) {
+    var argIndex = 0;
+    var methodName;
+
+    while (argIndex < args.length) {
+      methodName = args[argIndex];
+      restore(methodName);
+      argIndex++;
+
+      if (typeof args[argIndex] === 'function') {
+        activeStubs[methodName] = sinon.stub(target, methodName, args[argIndex]);
+        argIndex++;
+      } else {
+        activeStubs[methodName] = sinon.stub(target, methodName);
+      }
+    }
+  }
+
+  function handleSpyArgs(args) {
+    var argIndex = 0;
+    var methodName;
+
+    while (argIndex < args.length) {
+      methodName = args[argIndex];
+      restore(methodName);
+      activeStubs[methodName] = sinon.spy(target, methodName);
+      argIndex++;
+    }
+  }
+
   function stub() {
     var args = getArgumentsArray(arguments);
 
     if (args.length === 0) {
       forEachFunctionInObject(target, stub);
-      return this;
-    }
-
-    var index = 0;
-    while (index < args.length) {
-      var key = args[index];
-      restore(key);
-      index++;
-
-      if (typeof args[index] === 'function') {
-        activeStubs[key] = sinon.stub(target, key, args[index]);
-        index++;
-      } else {
-        activeStubs[key] = sinon.stub(target, key);
-      }
+    } else {
+      handleStubArgs(args);
     }
     return this;
   }
@@ -89,15 +110,8 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
 
     if (args.length === 0) {
       forEachFunctionInObject(target, spy);
-      return this;
-    }
-
-    var index = 0;
-    while (index < args.length) {
-      var key = args[index];
-      restore(key);
-      activeStubs[key] = sinon.spy(target, key);
-      index++;
+    } else {
+      handleSpyArgs(args);
     }
     return this;
   }
@@ -111,11 +125,8 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
 
   return {
     stub: stub,
-
     spy: spy,
-
     replace: replace,
-
     reset: function() {
       reset();
       return this;
@@ -124,6 +135,23 @@ module.exports.onObject = function(target, autoReset, afterEachHook) {
 };
 
 module.exports.fromConstructor = function(target) {
+  function createStubs(object, stubsAndImplementations) {
+    var index = 0;
+    var methodName;
+
+    while (index < stubsAndImplementations.length) {
+      methodName = stubsAndImplementations[index];
+      index++;
+
+      if (typeof stubsAndImplementations[index] === 'function') {
+        object[methodName] = sinon.spy(stubsAndImplementations[index]);
+        index++;
+      } else {
+        replaceMethodWithStub(object)(methodName);
+      }
+    }
+  }
+
   function getStub() {
     var instances = [], instanceArgs = [];
     var ReturnedConstructor = sinon.spy(StubConstructor);
@@ -134,25 +162,13 @@ module.exports.fromConstructor = function(target) {
       instances.push(this);
 
       forEachFunctionInObject(target.prototype, replaceMethodWithStub(this));
-      additionalMethods.forEach(replaceMethodWithStub(this));
-
-      var index = 0;
-      while (index < additionalMethods.length) {
-        var methodName = additionalMethods[index];
-        index++;
-
-        if (typeof additionalMethods[index] === 'function') {
-          this[methodName] = sinon.spy(additionalMethods[index]);
-          index++;
-        } else {
-          replaceMethodWithStub(this)(methodName);
-        }
-      }
+      createStubs(this, additionalMethods);
       return this;
     }
 
-    ReturnedConstructor.stub = function(methodName) {
+    ReturnedConstructor.stub = function() {
       var args = getArgumentsArray(arguments);
+
       additionalMethods = additionalMethods.concat(args);
       return this;
     };
@@ -162,18 +178,19 @@ module.exports.fromConstructor = function(target) {
     };
 
     ReturnedConstructor.getInstance = function(index) {
-      if (typeof index === "undefined") {
+      var instanceIndex = index || 0;
+
+      if (typeof index === 'undefined') {
         if (instances.length > 1) {
           throw new Error('Tried to access only instance of StubConstructor, but there were ' + instances.length + ' instances.');
         }
-        index = 0;
       }
-      if (instances.length <= index) {
-        throw new Error('Tried to access StubConstructor instance ' + index + ', but there were only ' +
+      if (instances.length <= instanceIndex) {
+        throw new Error('Tried to access StubConstructor instance ' + instanceIndex + ', but there were only ' +
           instances.length + ' instances.');
       }
 
-      return instances[index];
+      return instances[instanceIndex];
     };
 
     ReturnedConstructor.getInstancesArgs = function() {
@@ -181,20 +198,20 @@ module.exports.fromConstructor = function(target) {
     };
 
     ReturnedConstructor.getInstanceArgs = function(index) {
-      if (typeof index === "undefined") {
+      var instanceIndex = index || 0;
+
+      if (typeof index === 'undefined') {
         if (instances.length > 1) {
           throw new Error('Tried to access arguments of only instance of StubConstructor, but there were ' +
-            instances.length +
-            ' instances.');
+            instances.length + ' instances.');
         }
-        index = 0;
       }
-      if (instances.length <= index) {
-        throw new Error('Tried to access arguments of StubConstructor instance ' + index + ', but there were only ' +
+      if (instances.length <= instanceIndex) {
+        throw new Error('Tried to access arguments of StubConstructor instance ' + instanceIndex + ', but there were only ' +
           instances.length + ' instances.');
       }
 
-      return instanceArgs[index];
+      return instanceArgs[instanceIndex];
     };
 
     return ReturnedConstructor;

@@ -28,6 +28,7 @@ function sinonStubOrSpy(object, methodName) {
 
 function sinonGetStub() {
   var result = function() {};
+
   result.isStub = true;
   return result;
 }
@@ -52,8 +53,8 @@ describe('onObject', function() {
 
   beforeEach(function() {
     testObject = {
-      field1: function() {return 1},
-      field2: function() {return 2},
+      field1: function() {return 1;},
+      field2: function() {return 2;},
       field3: 'my string'
     };
     onAfterEach = null;
@@ -75,6 +76,7 @@ describe('onObject', function() {
 
     it('should stub implementing a given functionality', function() {
       var replacementFunction = function() {};
+
       onObject(testObject).stub('field1', replacementFunction);
 
       verify(sinon.stub(testObject, 'field1', replacementFunction), {times: 1});
@@ -90,6 +92,7 @@ describe('onObject', function() {
     it('should allow stubbing a list of methods while also providing functionalities', function() {
       var replacementFunction1 = function() {};
       var replacementFunction2 = function() {};
+
       onObject(testObject).stub('field1', replacementFunction1, 'field2', replacementFunction2);
 
       verify(sinon.stub(testObject, 'field1', replacementFunction1), {times: 1});
@@ -176,8 +179,8 @@ describe('onObject', function() {
 
     it('should register a callback with a global afterEach function if autoReset is true and no afterEachHook is provided', function() {
       var oldAfterEach = global.afterEach;
-      global.afterEach = afterEachHook;
 
+      global.afterEach = afterEachHook;
       onObject(testObject, true);
 
       expect(onAfterEach).to.be.a('function');
@@ -186,9 +189,9 @@ describe('onObject', function() {
 
     it('should restore all replaced variables on global afterEach if autoreset is true and no afterEachHook is provided', function() {
       var oldAfterEach = global.afterEach;
+
       global.afterEach = afterEachHook;
       onObject(testObject, true).stub('field1').spy('field2').replace('field3', 'replacement');
-
       onAfterEach();
 
       td.verify(testObject.field1.restore());
@@ -196,7 +199,7 @@ describe('onObject', function() {
       expect(testObject.field3).to.equal('my string');
       global.afterEach = oldAfterEach;
     });
-  })
+  });
 });
 
 describe('fromConstructor', function() {
@@ -205,8 +208,8 @@ describe('fromConstructor', function() {
   beforeEach(function() {
     TestConstructor = function() {};
     TestConstructor.prototype = {
-      field1: function() {return 1},
-      field2: function() {return 2}
+      field1: function() {return 1;},
+      field2: function() {return 2;}
     };
   });
 
@@ -278,6 +281,7 @@ describe('fromConstructor', function() {
       it('should return a list of instances', function() {
         var instance1 = new StubConstructor();
         var instance2 = new StubConstructor();
+
         expect(StubConstructor.getInstances()).to.deep.equal([instance1, instance2]);
       });
     });
@@ -291,6 +295,7 @@ describe('fromConstructor', function() {
 
       it('should return a single instance if one has been created', function() {
         var instance = new StubConstructor();
+
         expect(StubConstructor.getInstance()).to.equal(instance);
       });
 
@@ -307,12 +312,13 @@ describe('fromConstructor', function() {
       it('should return an instance with a given index', function() {
         new StubConstructor();
         var instance2 = new StubConstructor();
+
         expect(StubConstructor.getInstance(1)).to.equal(instance2);
       });
 
       it('should throw an error if not enough instances exist', function() {
         new StubConstructor();
-        expect(function() {StubConstructor.getInstance(1)}).to.throw(/1 instances/);
+        expect(function() {StubConstructor.getInstance(1);}).to.throw(/1 instances/);
       });
     });
 
@@ -364,7 +370,7 @@ describe('fromConstructor', function() {
 
       it('should throw an error if not enough instances exist', function() {
         new StubConstructor('foo', 'bar');
-        expect(function() {StubConstructor.getInstanceArgs(1)}).to.throw(/1 instances/);
+        expect(function() {StubConstructor.getInstanceArgs(1);}).to.throw(/1 instances/);
       });
     });
   });
