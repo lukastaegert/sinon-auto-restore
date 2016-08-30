@@ -4,99 +4,22 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-A library that provides a streamlined interface for creating Sinon stubs and spies that will be automatically restored. This library has
-been created to be used in a Mocha setup but will also work with other test frameworks.
-
-## Usage:
-
-Consider an object with two methods and a field:
-```javascript
-onObject = require('sinon-auto-restore').onObject;
-
-var myObject = {
-  test1: function() {console.log('original function 1');},
-  test2: function() {console.log('original function 2');},
-  testField: 'test field'
-}
-```
-
-Spy on or stub fields of an object with automatic restore:
-```javascript
-onObject(myObject).stub('test1');
-onObject(myObject).spy('test2');
-```
-
-This is equivalent to
-```javascript
-sinon.stub(myObject, 'test1');
-sinon.spy(myObject, 'test2');
-
-afterEach(function() {
-  myObject.test1.restore();
-  myObject.test2.restore();
-});
-```
-
-You can provide functionality to stubs:
-```javascript
-onObject(myObject).stub('test1', function() {console.log('replacement method');});
-```
-
-Method calls may be chained:
-```javascript
-onObject(myObject).stub('test1').spy('test2');
-```
-
-You can stub all methods of an object at once:
-```javascript
-onObject(myObject).stub();
-```
-and similarly
-```javascript
-onObject(myObject).spy();
-```
-
-By providing a list of method names, you can stub or spy on a selection of methods in one call. However, that way you cannot provide any functionalities to your stubs:
-```javascript
-onObject(myObject).stub('test1', 'test2');
-```
-
-If you want to provide additional sinon functionality like return values to your stubs, you need to set them after stubbing the methods as with any Sinon stubs:
-```javascript
-onObject(myObject).stub('test1');
-myObject.test1.returns('return value');
-// not supported: onObject(myObject).stub('test1').returns('return value')
-```
-
-The reason for this is that otherwise, this library would have to mirror the whole Sinon API.
-
-Besides stubbing and spying on methods, you can also replace fields of an object:
-```javascript
-onObject(myObject).replace('testField', 'new test value');
-```
-
-This is equivalent to
-```javascript
-var originalField = myObject.testField;
-myObject.testField = 'new test value';
-
-afterEach(function() {
-  myObject.testField = originalField;
-});
-```
+A library that provides a streamlined interface for creating [sinon](https://github.com/sinonjs/sinon) stubs and spies
+that will be automatically restored. Created to be used in a [mocha](https://github.com/mochajs/mocha) setup but can be
+configured to work with other test frameworks.
 
 ## API
 
 ### `onObject(objectName, autoReset = true <, afterEachHook>)`
 
-Provides an interface to stub and spy on methods of an object and to replace fields. If `autoReset = true` (the default), all stubs, spies
-and replacements are automatically passed to `afterEachHook`. If no `afterEachHook` is provided, they are passed to `afterEach` and thus
-restored on teardown.
+Provides an interface to stub and spy on methods of an object and to replace fields. If `autoReset = true` (the default),
+all stubs, spies and replacements are automatically passed to `afterEachHook` and thus restored on teardown.
+If no `afterEachHook` is provided, they are passed to any `afterEach` function in scope.
 
 * `.stub()`
 Replaces all methods of an object with stubs.
 * `.stub('method1' <,'method2' <...>>)`
-Replaces the given methods with stubs.
+Replaces only the given methods with stubs.
 * `.stub('method', replacementFunction)`
 Replaces a given method with a stub with the provided functionality.
 * `.spy()`
@@ -119,7 +42,7 @@ spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by
 
 ### `fromConstructur(ConstructorName)`
 * `getStub()`
-Returns a constructor mimicking the given constructor `ConstructorName`. This can be especially handy if you use something like
+Returns a [`StubConstructor`](#stubconstructor-api) mimicking the given constructor `ConstructorName`. This can be especially handy if you use something like
 [rewire](https://github.com/jhnns/rewire) or [babel-plugin-rewire](https://github.com/speedskater/babel-plugin-rewire) for dependency
 injection. When called with `new`, this constructor creates an object containing stubs for any methods of the prototype object of
 `ConstructorName`. See also below for additional methods of the `StubConstructor`.

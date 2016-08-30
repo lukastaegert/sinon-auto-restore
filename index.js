@@ -5,23 +5,16 @@ var replaceMethodWithStub = R.curry(function (object, methodName) {
   object[ methodName ] = sinon.stub()
 })
 
-function forEachFunctionInObject (object, appliedFunction) {
-  var key
-
-  for (key in object) {
-    // noinspection JSUnfilteredForInLoop
-    if (typeof object[ key ] === 'function') {
-      // noinspection JSUnfilteredForInLoop
-      appliedFunction(key)
-    }
-  }
+var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
+  R.compose(
+    R.forEach(appliedFunction),
+    R.filter(R.propIs(Function, R.__, object)),
+    R.keysIn
+  )(object)
 }
 
-function getArgumentsArray (args) {
-  var argsArray = []
-
-  argsArray.push.apply(argsArray, args)
-  return argsArray
+function getArrayFromArrayLikeObject (args) {
+  return Array.prototype.slice.call(args)
 }
 
 module.exports.onObject = function (target, autoReset, afterEachHook) {
@@ -95,10 +88,10 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
   }
 
   function stub () {
-    var args = getArgumentsArray(arguments)
+    var args = getArrayFromArrayLikeObject(arguments)
 
     if (args.length === 0) {
-      forEachFunctionInObject(target, stub)
+      applyToEachFunctionKeyInObject(stub, target)
     } else {
       handleStubArgs(args)
     }
@@ -106,10 +99,10 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
   }
 
   function spy () {
-    var args = getArgumentsArray(arguments)
+    var args = getArrayFromArrayLikeObject(arguments)
 
     if (args.length === 0) {
-      forEachFunctionInObject(target, spy)
+      applyToEachFunctionKeyInObject(spy, target)
     } else {
       handleSpyArgs(args)
     }
@@ -147,7 +140,7 @@ module.exports.fromConstructor = function (target) {
         object[ methodName ] = sinon.spy(stubsAndImplementations[ index ])
         index++
       } else {
-        replaceMethodWithStub(object)(methodName)
+        replaceMethodWithStub(object, methodName)
       }
     }
   }
@@ -159,16 +152,16 @@ module.exports.fromConstructor = function (target) {
     var additionalMethods = []
 
     function StubConstructor () {
-      instanceArgs.push(getArgumentsArray(arguments))
+      instanceArgs.push(getArrayFromArrayLikeObject(arguments))
       instances.push(this)
 
-      forEachFunctionInObject(target.prototype, replaceMethodWithStub(this))
+      applyToEachFunctionKeyInObject(replaceMethodWithStub(this), target.prototype)
       createStubs(this, additionalMethods)
       return this
     }
 
     ReturnedConstructor.stub = function () {
-      var args = getArgumentsArray(arguments)
+      var args = getArrayFromArrayLikeObject(arguments)
 
       additionalMethods = additionalMethods.concat(args)
       return this
