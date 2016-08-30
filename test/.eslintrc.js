@@ -3,7 +3,6 @@ module.exports = {
     "mocha": true
   },
   "rules": {
-    "no-new": 0,
-    "vars-on-top": 0
+    "no-new": 0
   }
 };
