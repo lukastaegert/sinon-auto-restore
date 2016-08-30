@@ -4,8 +4,8 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-A library that provides a streamlined interface for creating [sinon](https://github.com/sinonjs/sinon) stubs and spies
-that will be automatically restored. Created to be used in a [mocha](https://github.com/mochajs/mocha) setup but can be
+A library that provides a streamlined interface for creating [`sinon`](https://github.com/sinonjs/sinon) stubs and spies
+that will be automatically restored. Created to be used in a [`mocha`](https://github.com/mochajs/mocha) setup but can be
 configured to work with other test frameworks.
 
 ## API
@@ -16,19 +16,19 @@ Provides an interface to stub and spy on methods of an object and to replace fie
 all stubs, spies and replacements are automatically passed to `afterEachHook` and thus restored on teardown.
 If no `afterEachHook` is provided, they are passed to any `afterEach` function in scope.
 
-* `.stub()`
+* `.stub()`:
 Replaces all methods of an object with stubs.
-* `.stub('method1' <,'method2' <...>>)`
+* `.stub('method1' <,'method2' <...>>)`:
 Replaces only the given methods with stubs.
 * `.stub('method', replacementFunction)`
 Replaces a given method with a stub with the provided functionality.
-* `.spy()`
+* `.spy()`:
 Spies on all methods of an object.
-* `.spy('method1' <,'method2' <...>>)`
+* `.spy('method1' <,'method2' <...>>)`:
 Spies on the given methods of an object.
-* `.replace('field', replacementValue)`
+* `.replace('field', replacementValue)`:
 Replaces a given field with another value.
-* `.reset()`
+* `.reset()`:
 Restores all stubs, spies and replacements. Note that this method has to be called on the return value of the same `onObject` invocation
 which was used to create the stubs.
 
@@ -41,9 +41,9 @@ spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by
 
 
 ### `fromConstructur(ConstructorName)`
-* `getStub()`
+* `getStub()`:
 Returns a [`StubConstructor`](#stubconstructor-api) mimicking the given constructor `ConstructorName`. This can be especially handy if you use something like
-[rewire](https://github.com/jhnns/rewire) or [babel-plugin-rewire](https://github.com/speedskater/babel-plugin-rewire) for dependency
+[`rewire`](https://github.com/jhnns/rewire) or [`babel-plugin-rewire`](https://github.com/speedskater/babel-plugin-rewire) for dependency
 injection. When called with `new`, this constructor creates an object containing stubs for any methods of the prototype object of
 `ConstructorName`. See also below for additional methods of the `StubConstructor`.
 * `getSpy()` _not yet implemented_
@@ -54,9 +54,9 @@ _not yet implemented_
 
 ### `StubConstructor` API
 A `StubConstructor` has the following methods:
-  * `.stub('method1' <,'method2' <...>>)`
+  * `.stub('method1' <,'method2' <...>>)`:
 Instances should have the listed additional methods as stubs.
-  * `.stub('method', replacementFunction)`
+  * `.stub('method', replacementFunction)`:
 Instances should have the listed additional stub method with the provided functionality.
   * `.getInstances()`:
 Returns an array of instances created with the stub constructor.
