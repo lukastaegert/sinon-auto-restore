@@ -143,10 +143,15 @@ describe('onObject', function () {
 
   describe('reset', function () {
     it('should remove all stubs, spies and replacements on reset', function () {
-      onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement').reset()
+      var stubHandler = onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement')
 
-      td.verify(testObject.field1.restore())
-      td.verify(testObject.field2.restore())
+      td.verify(testObject.field1.restore(), { times: 0 })
+      td.verify(testObject.field2.restore(), { times: 0 })
+
+      stubHandler.reset()
+
+      td.verify(testObject.field1.restore(), { times: 1 })
+      td.verify(testObject.field2.restore(), { times: 1 })
       expect(testObject.field3).to.equal('my string')
     })
   })

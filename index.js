@@ -17,6 +17,25 @@ function getArrayFromArrayLikeObject (args) {
   return Array.prototype.slice.call(args)
 }
 
+function parseStringFunctionArrayToArguments (argsArray) {
+  var index = 0
+  var firstArg
+  var result = []
+
+  while (index < argsArray.length) {
+    firstArg = argsArray[ index ]
+    index++
+
+    if (typeof argsArray[ index ] === 'function') {
+      result.push([ firstArg, argsArray[ index ] ])
+      index++
+    } else {
+      result.push([ firstArg ])
+    }
+  }
+  return result
+}
+
 module.exports.onObject = function (target, autoReset, afterEachHook) {
   var activeStubs = {}
   var activeReplacements = {}
@@ -34,12 +53,11 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
     restoreKeysOf(activeReplacements)
     activeStubs = {}
     activeReplacements = {}
+    return this
   }
 
   function restoreKeysOf (object) {
-    var key
-
-    for (key in object) {
+    for (var key in object) {
       if (object.hasOwnProperty(key)) {
         restore(key)
       }
@@ -57,56 +75,25 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
     }
   }
 
-  function handleStubArgs (args) {
-    var argIndex = 0
-    var methodName
+  var createStubOrSpy = R.curry(function (stubbingFunction, args) {
+    restore(args[ 0 ])
+    activeStubs[ args[ 0 ] ] = R.apply(stubbingFunction, R.concat([ target ], args))
+  })
 
-    while (argIndex < args.length) {
-      methodName = args[ argIndex ]
-      restore(methodName)
-      argIndex++
+  function getTargetStubber (stubbingFunction) {
+    return function stubOrSpy () {
+      var args = getArrayFromArrayLikeObject(arguments)
 
-      if (typeof args[ argIndex ] === 'function') {
-        activeStubs[ methodName ] = sinon.stub(target, methodName, args[ argIndex ])
-        argIndex++
+      if (args.length === 0) {
+        applyToEachFunctionKeyInObject(stubOrSpy, target)
       } else {
-        activeStubs[ methodName ] = sinon.stub(target, methodName)
+        R.compose(
+          R.forEach(createStubOrSpy(stubbingFunction)),
+          parseStringFunctionArrayToArguments
+        )(args)
       }
+      return this
     }
-  }
-
-  function handleSpyArgs (args) {
-    var argIndex = 0
-    var methodName
-
-    while (argIndex < args.length) {
-      methodName = args[ argIndex ]
-      restore(methodName)
-      activeStubs[ methodName ] = sinon.spy(target, methodName)
-      argIndex++
-    }
-  }
-
-  function stub () {
-    var args = getArrayFromArrayLikeObject(arguments)
-
-    if (args.length === 0) {
-      applyToEachFunctionKeyInObject(stub, target)
-    } else {
-      handleStubArgs(args)
-    }
-    return this
-  }
-
-  function spy () {
-    var args = getArrayFromArrayLikeObject(arguments)
-
-    if (args.length === 0) {
-      applyToEachFunctionKeyInObject(spy, target)
-    } else {
-      handleSpyArgs(args)
-    }
-    return this
   }
 
   function replace (key, replacement) {
@@ -117,32 +104,25 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
   }
 
   return {
-    stub: stub,
-    spy: spy,
+    stub: getTargetStubber(sinon.stub),
+    spy: getTargetStubber(sinon.spy),
     replace: replace,
-    reset: function () {
-      reset()
-      return this
-    }
+    reset: reset
   }
 }
 
 module.exports.fromConstructor = function (target) {
   function createStubs (object, stubsAndImplementations) {
-    var index = 0
-    var methodName
-
-    while (index < stubsAndImplementations.length) {
-      methodName = stubsAndImplementations[ index ]
-      index++
-
-      if (typeof stubsAndImplementations[ index ] === 'function') {
-        object[ methodName ] = sinon.spy(stubsAndImplementations[ index ])
-        index++
-      } else {
-        replaceMethodWithStub(object, methodName)
-      }
-    }
+    R.compose(
+      R.forEach(function (args) {
+        if (args.length === 2) {
+          object[ args[ 0 ] ] = sinon.spy(args[ 1 ])
+        } else {
+          replaceMethodWithStub(object, args[ 0 ])
+        }
+      }),
+      parseStringFunctionArrayToArguments
+    )(stubsAndImplementations)
   }
 
   function getStub () {
