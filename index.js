@@ -17,23 +17,15 @@ function getArrayFromArrayLikeObject (args) {
   return Array.prototype.slice.call(args)
 }
 
-function parseStringFunctionArrayToArguments (argsArray) {
-  var index = 0
-  var firstArg
-  var result = []
-
-  while (index < argsArray.length) {
-    firstArg = argsArray[ index ]
-    index++
-
-    if (typeof argsArray[ index ] === 'function') {
-      result.push([ firstArg, argsArray[ index ] ])
-      index++
+var parseStringFunctionArrayToArguments = function (argsArray) {
+  return R.reduce(function (arrayOfArguments, argument) {
+    if (typeof argument !== 'function') {
+      arrayOfArguments.push([ argument ])
     } else {
-      result.push([ firstArg ])
+      R.last(arrayOfArguments).push(argument)
     }
-  }
-  return result
+    return arrayOfArguments
+  }, [])(argsArray)
 }
 
 module.exports.onObject = function (target, autoReset, afterEachHook) {
