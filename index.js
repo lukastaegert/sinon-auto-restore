@@ -17,6 +17,8 @@ function getArrayFromArrayLikeObject (args) {
   return Array.prototype.slice.call(args)
 }
 
+// we cannot directly define this as the result of R.reduce because then, each call would use the SAME empty array
+// reference as reduce initializer
 var parseStringFunctionArrayToArguments = function (argsArray) {
   return R.reduce(function (arrayOfArguments, argument) {
     if (typeof argument !== 'function') {
@@ -48,14 +50,6 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
     return this
   }
 
-  function restoreKeysOf (object) {
-    for (var key in object) {
-      if (object.hasOwnProperty(key)) {
-        restore(key)
-      }
-    }
-  }
-
   function restore (key) {
     if (activeStubs.hasOwnProperty(key)) {
       activeStubs[ key ].restore()
@@ -66,6 +60,8 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
       delete activeReplacements[ key ]
     }
   }
+
+  var restoreKeysOf = R.compose(R.forEach(restore), R.keysIn)
 
   var createStubOrSpy = R.curry(function (stubbingFunction, args) {
     restore(args[ 0 ])
