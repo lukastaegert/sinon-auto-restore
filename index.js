@@ -5,6 +5,11 @@ var replaceMethodWithStub = R.curry(function (object, methodName) {
   object[ methodName ] = sinon.stub()
 })
 
+var spyOnMethod = R.curry(function (object, methodName) {
+  console.log('spy on', object, methodName)
+  sinon.spy(object, methodName)
+})
+
 var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
   R.compose(
     R.forEach(appliedFunction),
@@ -99,7 +104,7 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
   }
 }
 
-module.exports.fromConstructor = function (target) {
+module.exports.fromConstructor = function (Target) {
   function createStubs (object, stubsAndImplementations) {
     R.compose(
       R.forEach(function (args) {
@@ -113,6 +118,22 @@ module.exports.fromConstructor = function (target) {
     )(stubsAndImplementations)
   }
 
+  function getSpy () {
+    var ReturnedConstructor = sinon.spy(SpyConstructor)
+
+    function SpyConstructor () {
+      Target.apply(this, arguments)
+      sinon.spy(this, 'field1')
+      sinon.spy(this, 'field2')
+      applyToEachFunctionKeyInObject(spyOnMethod(this), Target.prototype)
+      return this
+    }
+
+    SpyConstructor.prototype = Target.prototype
+
+    return ReturnedConstructor
+  }
+
   function getStub () {
     var instances = []
     var instanceArgs = []
@@ -123,7 +144,7 @@ module.exports.fromConstructor = function (target) {
       instanceArgs.push(getArrayFromArrayLikeObject(arguments))
       instances.push(this)
 
-      applyToEachFunctionKeyInObject(replaceMethodWithStub(this), target.prototype)
+      applyToEachFunctionKeyInObject(replaceMethodWithStub(this), Target.prototype)
       createStubs(this, additionalMethods)
       return this
     }
@@ -180,6 +201,7 @@ module.exports.fromConstructor = function (target) {
   }
 
   return {
-    getStub: getStub
+    getStub: getStub,
+    getSpy: getSpy
   }
 }

@@ -205,7 +205,10 @@ describe('fromConstructor', function () {
   var TestConstructor
 
   beforeEach(function () {
-    TestConstructor = function () {}
+    TestConstructor = function () {
+      this.field3 = function () { return 3 }
+      this.field4 = 'my string'
+    }
     TestConstructor.prototype = {
       field1: function () { return 1 },
       field2: function () { return 2 }
@@ -223,7 +226,15 @@ describe('fromConstructor', function () {
       expect(StubConstructor).to.have.property('isSpiedOn', true)
     })
 
-    it('should return a constructor that creates an object with the given methods', function () {
+    it('should return a constructor that creates an object with all methods of the prototype object', function () {
+      var StubConstructor = fromConstructor(TestConstructor).getStub()
+      var stubbedObject = new StubConstructor()
+
+      expect(stubbedObject.field1).to.be.a('function')
+      expect(stubbedObject.field2).to.be.a('function')
+    })
+
+    it('should not call through to the original constructor', function () {
       var StubConstructor = fromConstructor(TestConstructor).getStub()
       var stubbedObject = new StubConstructor()
 
@@ -377,6 +388,34 @@ describe('fromConstructor', function () {
 
         expect(function () { StubConstructor.getInstanceArgs(1) }).to.throw(/1 instances/)
       })
+    })
+  })
+
+  describe('getSpy', function () {
+    it('should return a function', function () {
+      expect(fromConstructor(TestConstructor).getSpy()).to.be.a('function')
+    })
+
+    it('should return a constructor which is also a spy', function () {
+      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
+
+      expect(SpyConstructor).to.have.property('isSpiedOn', true)
+    })
+
+    it('should return a constructor that puts spies on all methods', function () {
+      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
+      var spiedObject = new SpyConstructor()
+
+      expect(spiedObject.field1).to.have.property('isSpiedOn', true, 'field1')
+      expect(spiedObject.field2).to.have.property('isSpiedOn', true, 'field2')
+      expect(spiedObject.field3).to.have.property('isSpiedOn', true, 'field3')
+    })
+
+    it.skip('should not call through to the original constructor', function () {
+      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
+      var spiedObject = new SpyConstructor()
+
+      expect(spiedObject.originalConstructorCalled).to.be.undefined
     })
   })
 })
