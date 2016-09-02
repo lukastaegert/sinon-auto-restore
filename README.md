@@ -87,11 +87,11 @@ A `SpyConstructor` has the following methods:
 * `.stub('method1' <,'method2' <...>>)`  
     Instances should have the listed additional methods as stubs; if already present, methods will be replaced by stubs.
 * `.stub('method', replacementFunction)`  
-    Instances should habe this method as stub with the provided functionality.
+    Instances should have this method as stub with the provided functionality.
 * `.spy('method1' <,'method2' <...>>)`  
     Even if previously marked as stubs, these methods should still be spies; useful together with `stub().
 * `.replace('field', replacementValue)`  
-    Àfter the constructor is run, this field should be replaced by the given value.
+    After the constructor is run, this field should be replaced by the given value.
 * `.getInstances()`  
     Returns an array of instances created with the stub constructor.
 * `.getInstance()`  
