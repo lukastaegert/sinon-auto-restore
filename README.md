@@ -10,7 +10,7 @@ be configured to work with other test frameworks.
 
 ## API
 
-### `onObject(objectName, autoReset = true <, afterEachHook>)`
+### `onObject(objectName)`
 
 Provides an interface to stub and spy on methods of an object and to replace fields. If `autoReset = true` (the
 default), all stubs, spies and replacements are automatically passed to `afterEachHook` and thus restored on teardown.
@@ -39,70 +39,17 @@ onObject(myObject).spy().stub('stubbedMethod')
 ```
 spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by a stub.
 
+### `restore()`
 
-### `fromConstructur(ConstructorName)`
-* `getStub()`  
-    Returns a [`StubConstructor`](#stubconstructor-api) mimicking the given constructor `ConstructorName`.
-    This can be especially handy if you use something like [`rewire`](https://github.com/jhnns/rewire) or
-    [`babel-plugin-rewire`](https://github.com/speedskater/babel-plugin-rewire) for dependency injection. When called
-    with `new`, this constructor creates an object containing stubs for any methods of the prototype object of
-    `ConstructorName`. See also below for additional methods of the `StubConstructor`.
-* `getSpy()`  
-    Returns a [`SpyConstructor`](#spyconstructor-api) mimicking the given constructor `ConstructorName`.This
-    is somewhat similar to `getStub` with the following differences:
-    * The original constructor function will still be executed when creating a new object
-    * Instead of stubbed, methods of any instance will be spied upon
-    * The methods to be spied upon are not determined by looking at the prototype object but by looking at the result of
-      creating an instance using the original constructor.
+Restores all stubs, spies and replacements.
 
-### `fromMethodNames('methodName1' <,'methodName2' <...>>)`
-_not yet implemented_
+### `configure({autoRestore: true, afterEachHook: afterEach})`
 
+Allows configuring the auto restore behavior.
 
-### `StubConstructor` API
-A `StubConstructor` has the following methods:
-* `.stub('method1' <,'method2' <...>>)`  
-    Instances should have the listed additional methods as stubs.
-* `.stub('method', replacementFunction)`  
-    Instances should have the listed additional stub method with the provided functionality.
-* `.getInstances()`   
-    Returns an array of instances created with the stub constructor.
-* `.getInstance()`  
-    Throws an error if no or more than one instance has been created. Otherwise, returns the instance created.
-* `.getInstance(index)`  
-    Throws an error if not at least `index` instances have been created. Otherwise, returns the instance `index`.
-* `.getInstancesArgs()`  
-    Returns an array of arrays containing the arguments of each instance creation.
-* `.getInstanceArgs()`  
-    Throws an error if no or more than one instance has been created. Otherwise, returns the arguments with which the
-    instance has been created.
-* `.getInstanceArgs(index)`  
-    Throws an error if not at least `index` instances have been created. Otherwise, returns the arguments with which
-    instance `index` has been created.
-
-### `SpyConstructor` API
-A `SpyConstructor` has the following methods:
-* `.stub()`  
-    Instead of spied upon, all instance methods should be stubbed.
-* `.stub('method1' <,'method2' <...>>)`  
-    Instances should have the listed additional methods as stubs; if already present, methods will be replaced by stubs.
-* `.stub('method', replacementFunction)`  
-    Instances should have this method as stub with the provided functionality.
-* `.spy('method1' <,'method2' <...>>)`  
-    Even if previously marked as stubs, these methods should still be spies; useful together with `stub().
-* `.replace('field', replacementValue)`  
-    After the constructor is run, this field should be replaced by the given value.
-* `.getInstances()`  
-    Returns an array of instances created with the stub constructor.
-* `.getInstance()`  
-    Throws an error if no or more than one instance has been created. Otherwise, returns the instance created.
-* `.getInstance(index)`  
-    Throws an error if not at least `index` instances have been created. Otherwise, returns the instance `index`.
-* `.getInstancesArgs()`  
-    Returns an array of arrays containing the arguments of each instance creation.
-* `.getInstanceArgs()`  
-    Throws an error if no or more than one instance has been created. Otherwise, returns the arguments with which the
-    instance has been created.
-* `.getInstanceArgs(index)`  
-    Throws an error if not at least `index` instances have been created. Otherwise, returns the arguments with which
-    instance `index` has been created.
+* `autoRestore`:  
+    When set to false, you should manually call `restore` after each test to remove all stubs. Otherwise, this is
+    automatically done during teardown. Defaults to `true`.
+* `afterEachHook`:  
+    Allows for setting a different function to be called to register the `reset` hook. Otherwise, any function
+    named `afterEach` which is in scope when `onObject` is called is used.
