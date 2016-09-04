@@ -1,6 +1,5 @@
 var sinonAutoRestore = require('../index')
 var onObject = sinonAutoRestore.onObject
-var fromConstructor = sinonAutoRestore.fromConstructor
 
 var expect = require('chai').expect
 var td = require('testdouble')
@@ -15,14 +14,21 @@ var afterEachHook = function (callback) {
 function createSinonTestDouble () {
   sinon = td.object([ 'stub', 'spy' ])
   global.sinon = sinon
-  td.when(sinon.stub(isA(Object), isA(String)), { ignoreExtraArgs: true }).thenDo(sinonStubOrSpy)
+  td.when(sinon.stub(isA(Object), isA(String)), { ignoreExtraArgs: true }).thenDo(sinonStub)
   td.when(sinon.stub()).thenDo(sinonGetStub)
-  td.when(sinon.spy(isA(Object), isA(String))).thenDo(sinonStubOrSpy)
+  td.when(sinon.spy(isA(Object), isA(String))).thenDo(sinonSpy)
   td.when(sinon.spy(isA(Function))).thenDo(sinonGetFunctionSpy)
 }
 
-function sinonStubOrSpy (object, methodName) {
+function sinonStub (object, methodName) {
   object[ methodName ] = { restore: td.function(methodName + '#restore') }
+  object[ methodName ].isSpiedOn = true
+  return object[ methodName ]
+}
+
+function sinonSpy (object, methodName) {
+  object[ methodName ].restore = td.function(methodName + '#restore')
+  object[ methodName ].isSpiedOn = true
   return object[ methodName ]
 }
 
@@ -197,225 +203,6 @@ describe('onObject', function () {
       td.verify(testObject.field2.restore())
       expect(testObject.field3).to.equal('my string')
       global.afterEach = oldAfterEach
-    })
-  })
-})
-
-describe('fromConstructor', function () {
-  var TestConstructor
-
-  beforeEach(function () {
-    TestConstructor = function () {
-      this.field3 = function () { return 3 }
-      this.field4 = 'my string'
-    }
-    TestConstructor.prototype = {
-      field1: function () { return 1 },
-      field2: function () { return 2 }
-    }
-  })
-
-  describe('getStub', function () {
-    it('should return a function', function () {
-      expect(fromConstructor(TestConstructor).getStub()).to.be.a('function')
-    })
-
-    it('should return a constructor which is also a spy', function () {
-      var StubConstructor = fromConstructor(TestConstructor).getStub()
-
-      expect(StubConstructor).to.have.property('isSpiedOn', true)
-    })
-
-    it('should return a constructor that creates an object with all methods of the prototype object', function () {
-      var StubConstructor = fromConstructor(TestConstructor).getStub()
-      var stubbedObject = new StubConstructor()
-
-      expect(stubbedObject.field1).to.be.a('function')
-      expect(stubbedObject.field2).to.be.a('function')
-    })
-
-    it('should not call through to the original constructor', function () {
-      var StubConstructor = fromConstructor(TestConstructor).getStub()
-      var stubbedObject = new StubConstructor()
-
-      expect(stubbedObject.originalConstructorCalled).to.be.undefined
-    })
-
-    describe('stub', function () {
-      it('should provide additional methods to the constructor', function () {
-        var stubbedObject = new (fromConstructor(TestConstructor).getStub().stub('otherField'))()
-
-        expect(stubbedObject.otherField.isStub).to.be.true
-      })
-
-      it('should allow stubbing a list of methods', function () {
-        var stubbedObject = new (fromConstructor(TestConstructor).getStub().stub('otherField1', 'otherField2'))()
-
-        expect(stubbedObject.otherField1.isStub).to.be.true
-        expect(stubbedObject.otherField2.isStub).to.be.true
-      })
-
-      it('should allow providing an implementation to a stub', function () {
-        function stubFunction () { return 'stubResult' }
-
-        var stubbedObject = new (fromConstructor(TestConstructor).getStub().stub('otherField', stubFunction))()
-
-        expect(stubbedObject.otherField()).to.equal('stubResult')
-        expect(stubbedObject.otherField.isSpiedOn).to.be.true
-      })
-
-      it('should allow stubbing a list of methods while also providing functionalities', function () {
-        var replacementFunction1 = function () { return 'stubResult1' }
-        var replacementFunction2 = function () { return 'stubResult2' }
-        var stubbedObject = new (fromConstructor(TestConstructor).getStub()
-          .stub('otherField1', replacementFunction1, 'otherField2', replacementFunction2))()
-
-        expect(stubbedObject.otherField1()).to.equal('stubResult1')
-        expect(stubbedObject.otherField1.isSpiedOn).to.be.true
-        expect(stubbedObject.otherField2()).to.equal('stubResult2')
-        expect(stubbedObject.otherField2.isSpiedOn).to.be.true
-      })
-    })
-
-    describe('getInstances', function () {
-      var StubConstructor
-
-      beforeEach(function () {
-        StubConstructor = fromConstructor(TestConstructor).getStub()
-      })
-
-      it('should return an empty list if there are no instances', function () {
-        expect(StubConstructor.getInstances()).to.deep.equal([])
-      })
-
-      it('should return a list of instances', function () {
-        var instance1 = new StubConstructor()
-        var instance2 = new StubConstructor()
-
-        expect(StubConstructor.getInstances()).to.deep.equal([ instance1, instance2 ])
-      })
-    })
-
-    describe('getInstance', function () {
-      var StubConstructor
-
-      beforeEach(function () {
-        StubConstructor = fromConstructor(TestConstructor).getStub()
-      })
-
-      it('should return a single instance if one has been created', function () {
-        var instance = new StubConstructor()
-
-        expect(StubConstructor.getInstance()).to.equal(instance)
-      })
-
-      it('should throw an error if no instance has been created', function () {
-        expect(StubConstructor.getInstance).to.throw(/0 instances/)
-      })
-
-      it('should throw an error if more than one instance has been created', function () {
-        new StubConstructor()
-        new StubConstructor()
-
-        expect(StubConstructor.getInstance).to.throw(/2 instances/)
-      })
-
-      it('should return an instance with a given index', function () {
-        new StubConstructor()
-        var instance2 = new StubConstructor()
-
-        expect(StubConstructor.getInstance(1)).to.equal(instance2)
-      })
-
-      it('should throw an error if not enough instances exist', function () {
-        new StubConstructor()
-
-        expect(function () { StubConstructor.getInstance(1) }).to.throw(/1 instances/)
-      })
-    })
-
-    describe('getInstancesArgs', function () {
-      var StubConstructor
-
-      beforeEach(function () {
-        StubConstructor = fromConstructor(TestConstructor).getStub()
-      })
-
-      it('should return an empty list if there are no instances', function () {
-        expect(StubConstructor.getInstancesArgs()).to.deep.equal([])
-      })
-
-      it('should return a list of constructor arguments', function () {
-        new StubConstructor('foo', 'bar')
-        new StubConstructor('baz', 'bla')
-
-        expect(StubConstructor.getInstancesArgs()).to.deep.equal([ [ 'foo', 'bar' ], [ 'baz', 'bla' ] ])
-      })
-    })
-
-    describe('getInstanceArgs', function () {
-      var StubConstructor
-
-      beforeEach(function () {
-        StubConstructor = fromConstructor(TestConstructor).getStub()
-      })
-
-      it('should return the arguments of a single instance if one has been created', function () {
-        new StubConstructor('foo', 'bar')
-        expect(StubConstructor.getInstanceArgs()).to.deep.equal([ 'foo', 'bar' ])
-      })
-
-      it('should throw an error if no instance has been created', function () {
-        expect(StubConstructor.getInstanceArgs).to.throw(/0 instances/)
-      })
-
-      it('should throw an error if more than one instance has been created', function () {
-        new StubConstructor('foo', 'bar')
-        new StubConstructor('baz', 'bla')
-
-        expect(StubConstructor.getInstanceArgs).to.throw(/2 instances/)
-      })
-
-      it('should return the arguments of an instance with a given index', function () {
-        new StubConstructor('foo', 'bar')
-        new StubConstructor('baz', 'bla')
-
-        expect(StubConstructor.getInstanceArgs(1)).to.deep.equal([ 'baz', 'bla' ])
-      })
-
-      it('should throw an error if not enough instances exist', function () {
-        new StubConstructor('foo', 'bar')
-
-        expect(function () { StubConstructor.getInstanceArgs(1) }).to.throw(/1 instances/)
-      })
-    })
-  })
-
-  describe('getSpy', function () {
-    it('should return a function', function () {
-      expect(fromConstructor(TestConstructor).getSpy()).to.be.a('function')
-    })
-
-    it('should return a constructor which is also a spy', function () {
-      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
-
-      expect(SpyConstructor).to.have.property('isSpiedOn', true)
-    })
-
-    it('should return a constructor that puts spies on all methods', function () {
-      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
-      var spiedObject = new SpyConstructor()
-
-      expect(spiedObject.field1).to.have.property('isSpiedOn', true, 'field1')
-      expect(spiedObject.field2).to.have.property('isSpiedOn', true, 'field2')
-      expect(spiedObject.field3).to.have.property('isSpiedOn', true, 'field3')
-    })
-
-    it.skip('should not call through to the original constructor', function () {
-      var SpyConstructor = fromConstructor(TestConstructor).getSpy()
-      var spiedObject = new SpyConstructor()
-
-      expect(spiedObject.originalConstructorCalled).to.be.undefined
     })
   })
 })
