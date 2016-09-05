@@ -12,9 +12,8 @@ be configured to work with other test frameworks.
 
 ### `onObject(objectName)`
 
-Provides an interface to stub and spy on methods of an object and to replace fields. If `autoReset = true` (the
-default), all stubs, spies and replacements are automatically passed to `afterEachHook` and thus restored on teardown.
-If no `afterEachHook` is provided, they are passed to any `afterEach` function in scope.
+Provides an interface to stub and spy on methods of an object and to replace fields. By default, all stubs, spies and
+replacements are automatically passed to any `afterEach` function in scope and are thus restored on teardown.
 
 * `.stub()`   
     Replaces all methods of an object with stubs.
@@ -28,16 +27,19 @@ If no `afterEachHook` is provided, they are passed to any `afterEach` function i
     Spies on the given methods of an object.
 * `.replace('field', replacementValue)`  
     Replaces a given field with another value.
-* `.reset()`  
-    Restores all stubs, spies and replacements. Note that this method has to be called on the return value of the same
-    `onObject` invocation which was used to create the stubs.
 
 All of the above methods can be chained. In case different method calls would modify the same field or method, only the
 last method call is used, i.e.,
 ```javascript
 onObject(myObject).spy().stub('stubbedMethod')
 ```
-spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by a stub.
+spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by a stub. This also works across
+different calls to `onObject`, i.e.
+```javascript
+onObject(myObject).spy()
+onObject(myObject).stub('stubbedMethod')
+```
+would have exactly the same effect.
 
 ### `restore()`
 
@@ -51,5 +53,5 @@ Allows configuring the auto restore behavior.
     When set to false, you should manually call `restore` after each test to remove all stubs. Otherwise, this is
     automatically done during teardown. Defaults to `true`.
 * `afterEachHook`:  
-    Allows for setting a different function to be called to register the `reset` hook. Otherwise, any function
+    Allows for setting a different function to be called to register the `restore` hook. Otherwise, any function
     named `afterEach` which is in scope when `onObject` is called is used.
