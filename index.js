@@ -1,5 +1,63 @@
 /* global sinon, afterEach */
 var R = require('ramda')
+var activeChanges = []
+
+var isActiveChangesForThis = function (activeChanges) {
+  return activeChanges.object === this
+}
+
+function getActiveChangesForObject (object) {
+  var activeChangesForObject = activeChanges.filter(isActiveChangesForThis, object)[ 0 ]
+  if (!activeChangesForObject) {
+    activeChangesForObject = { object: object, activeStubs: {}, activeReplacements: {} }
+    activeChanges.push(activeChangesForObject)
+  }
+  return activeChangesForObject
+}
+
+var createStubOrSpyForObjectKey = R.curry(function (stubbingFunction, object, args) {
+  restoreKey(object, args[ 0 ])
+  var activeStubs = getActiveChangesForObject(object).activeStubs
+  activeStubs[ args[ 0 ] ] = R.apply(stubbingFunction, R.concat([ object ], args))
+})
+
+function replaceObjectKey (object, key, replacement) {
+  restoreKey(object, key)
+  var activeReplacements = getActiveChangesForObject(object).activeReplacements
+  activeReplacements[ key ] = object[ key ]
+  object[ key ] = replacement
+}
+
+function restoreKey (object, key) {
+  var activeChangesForObject = getActiveChangesForObject(object)
+  var activeStubs = activeChangesForObject.activeStubs
+  var activeReplacements = activeChangesForObject.activeReplacements
+
+  if (activeStubs.hasOwnProperty(key)) {
+    activeStubs[ key ].restore()
+    delete activeStubs[ key ]
+  }
+  if (activeReplacements.hasOwnProperty(key)) {
+    object[ key ] = activeReplacements[ key ]
+    delete activeReplacements[ key ]
+  }
+}
+
+var applyToEachKeyInObject = function (object, appliedFunction) {
+  R.compose(
+    R.forEach(appliedFunction),
+    R.keys
+  )(object)
+}
+
+function restoreActiveChangesForObject (activeChangesForObject) {
+  applyToEachKeyInObject(activeChangesForObject.activeStubs, function (key) {
+    activeChangesForObject.activeStubs[ key ].restore()
+  })
+  applyToEachKeyInObject(activeChangesForObject.activeReplacements, function (key) {
+    activeChangesForObject.object[ key ] = activeChangesForObject.activeReplacements[ key ]
+  })
+}
 
 var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
   R.compose(
@@ -26,43 +84,31 @@ var parseStringFunctionArrayToArguments = function (argsArray) {
   }, [])(argsArray)
 }
 
-module.exports.onObject = function (target, autoReset, afterEachHook) {
-  var activeStubs = {}
-  var activeReplacements = {}
+var afterEachHook
+var autoRestore = true
 
-  if (typeof autoReset === 'undefined' || autoReset) {
+function restore () {
+  activeChanges.forEach(restoreActiveChangesForObject)
+  activeChanges.length = 0
+}
+
+module.exports.restore = restore
+
+module.exports.configure = function (options) {
+  afterEachHook = afterEachHook || options.afterEachHook
+  if (typeof options.autoRestore !== 'undefined') {
+    autoRestore = options.autoRestore
+  }
+}
+
+module.exports.onObject = function (target) {
+  if (autoRestore) {
     if (typeof afterEachHook === 'undefined') {
-      afterEach(reset)
+      afterEach(restore)
     } else {
-      afterEachHook(reset)
+      afterEachHook(restore)
     }
   }
-
-  function reset () {
-    restoreKeysOf(activeStubs)
-    restoreKeysOf(activeReplacements)
-    activeStubs = {}
-    activeReplacements = {}
-    return this
-  }
-
-  function restore (key) {
-    if (activeStubs.hasOwnProperty(key)) {
-      activeStubs[ key ].restore()
-      delete activeStubs[ key ]
-    }
-    if (activeReplacements.hasOwnProperty(key)) {
-      target[ key ] = activeReplacements[ key ]
-      delete activeReplacements[ key ]
-    }
-  }
-
-  var restoreKeysOf = R.compose(R.forEach(restore), R.keysIn)
-
-  var createStubOrSpy = R.curry(function (stubbingFunction, args) {
-    restore(args[ 0 ])
-    activeStubs[ args[ 0 ] ] = R.apply(stubbingFunction, R.concat([ target ], args))
-  })
 
   function getTargetStubber (stubbingFunction) {
     return function stubOrSpy () {
@@ -72,7 +118,7 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
         applyToEachFunctionKeyInObject(stubOrSpy, target)
       } else {
         R.compose(
-          R.forEach(createStubOrSpy(stubbingFunction)),
+          R.forEach(createStubOrSpyForObjectKey(stubbingFunction, target)),
           parseStringFunctionArrayToArguments
         )(args)
       }
@@ -81,16 +127,13 @@ module.exports.onObject = function (target, autoReset, afterEachHook) {
   }
 
   function replace (key, replacement) {
-    restore(key)
-    activeReplacements[ key ] = target[ key ]
-    target[ key ] = replacement
+    replaceObjectKey(target, key, replacement)
     return this
   }
 
   return {
     stub: getTargetStubber(sinon.stub),
     spy: getTargetStubber(sinon.spy),
-    replace: replace,
-    reset: reset
+    replace: replace
   }
 }
