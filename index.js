@@ -62,9 +62,8 @@ function restoreActiveChangesForObject (activeChangesForObject) {
 var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
   R.compose(
     R.forEach(appliedFunction),
-    R.filter(R.propIs(Function, R.__, object)),
-    R.keysIn
-  )(object)
+    R.filter(R.propIs(Function, R.__, object))
+  )(Object.getOwnPropertyNames(object))
 }
 
 function getArrayFromArrayLikeObject (args) {

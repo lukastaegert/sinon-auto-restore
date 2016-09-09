@@ -87,9 +87,15 @@ describe('onObject', function () {
   beforeEach(function () {
     testObject = {
       field1: function () { return 1 },
-      field2: function () { return 2 },
       field3: 'my string'
     }
+    // noinspection JSUnusedGlobalSymbols
+    Object.defineProperty(testObject, 'field2', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: function () { return 2 }
+    })
     onAfterEach = null
   })
 
