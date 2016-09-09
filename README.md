@@ -16,7 +16,7 @@ Provides an interface to stub and spy on methods of an object and to replace fie
 replacements are automatically passed to any `afterEach` function in scope and are thus restored on teardown.
 
 * `.stub()`   
-    Replaces all methods of an object with stubs.
+    Replaces all own methods of an object with stubs.
 * `.stub('method1' <,'method2' <...>>)`  
     Replaces only the given methods with stubs.
 * `.stub('method', replacementFunction)`  
