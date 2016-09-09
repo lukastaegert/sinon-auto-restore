@@ -17,12 +17,14 @@ replacements are automatically passed to any `afterEach` function in scope and a
 
 * `.stub()`   
     Replaces all own methods of an object with stubs.
+* `.stub(n)`   
+    Replaces all own and inherited methods of an object with stubs going up to `n` levels up the prototype chain.
 * `.stub('method1' <,'method2' <...>>)`  
     Replaces only the given methods with stubs.
 * `.stub('method', replacementFunction)`  
     Replaces a given method with a stub with the provided functionality.
 * `.spy()`  
-    Spies on all methods of an object.
+    Spies on all own methods of an object.
 * `.spy('method1' <,'method2' <...>>)`  
     Spies on the given methods of an object.
 * `.replace('field', replacementValue)`  

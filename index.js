@@ -66,6 +66,16 @@ var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
   )(Object.getOwnPropertyNames(object))
 }
 
+var applyToEachFunctionKeyInPrototypeChain = function (appliedFunction, object, prototypeLevels) {
+  var currentLevel = 0
+  var currentObject = object
+  do {
+    applyToEachFunctionKeyInObject(appliedFunction, currentObject)
+    currentObject = Object.getPrototypeOf(currentObject)
+    currentLevel++
+  } while (currentLevel <= prototypeLevels && currentObject)
+}
+
 function getArrayFromArrayLikeObject (args) {
   return Array.prototype.slice.call(args)
 }
@@ -115,6 +125,8 @@ module.exports.onObject = function (target) {
 
       if (args.length === 0) {
         applyToEachFunctionKeyInObject(stubOrSpy, target)
+      } else if (args.length === 1 && typeof args[ 0 ] === 'number') {
+        applyToEachFunctionKeyInPrototypeChain(stubOrSpy, target, args[ 0 ])
       } else {
         R.compose(
           R.forEach(createStubOrSpyForObjectKey(stubbingFunction, target)),

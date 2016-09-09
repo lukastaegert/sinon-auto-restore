@@ -85,34 +85,56 @@ describe('onObject', function () {
   var testObject
 
   beforeEach(function () {
-    testObject = {
-      field1: function () { return 1 },
-      field3: 'my string'
+    var testPrototype2 = {
+      proto2: function () { return 'p2' }
     }
-    // noinspection JSUnusedGlobalSymbols
-    Object.defineProperty(testObject, 'field2', {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      value: function () { return 2 }
+    var testPrototype1 = Object.create(testPrototype2, {
+      proto1: { writable: true, enumerable: false, value: function () { return 'p1' } }
+    })
+    testObject = Object.create(testPrototype1, {
+      field1: { writable: true, enumerable: true, value: function () { return 1 } },
+      field2: { writable: true, enumerable: false, value: function () { return 2 } },
+      field3: { writable: true, enumerable: true, value: 'my string' }
     })
     onAfterEach = null
   })
 
   describe('stub', function () {
-    it('should stub a given field of an object', function () {
+    it('should stub a given method of an object', function () {
       onObject(testObject).stub('field1')
 
       stubbingEnabled = false
       verify(sinon.stub(testObject, 'field1'))
     })
 
-    it('should stub all fields of an object when called with no arguments', function () {
+    it('should stub all own methods of an object when called with no arguments', function () {
       onObject(testObject).stub()
 
       stubbingEnabled = false
       verify(sinon.stub(testObject, 'field1'), { times: 1 })
       verify(sinon.stub(testObject, 'field2'), { times: 1 })
+      verify(sinon.stub(testObject, 'proto1'), { times: 0 })
+      verify(sinon.stub(testObject, 'proto2'), { times: 0 })
+    })
+
+    it('should also stub methods of the direct prototype when called with 1', function () {
+      onObject(testObject).stub(1)
+
+      stubbingEnabled = false
+      verify(sinon.stub(testObject, 'field1'), { times: 1 })
+      verify(sinon.stub(testObject, 'field2'), { times: 1 })
+      verify(sinon.stub(testObject, 'proto1'), { times: 1 })
+      verify(sinon.stub(testObject, 'proto2'), { times: 0 })
+    })
+
+    it('should also stub methods of all prototypes when called with n large enough', function () {
+      onObject(testObject).stub(8)
+
+      stubbingEnabled = false
+      verify(sinon.stub(testObject, 'field1'), { times: 1 })
+      verify(sinon.stub(testObject, 'field2'), { times: 1 })
+      verify(sinon.stub(testObject, 'proto1'), { times: 1 })
+      verify(sinon.stub(testObject, 'proto2'), { times: 1 })
     })
 
     it('should stub implementing a given functionality', function () {
@@ -153,19 +175,41 @@ describe('onObject', function () {
   })
 
   describe('spy', function () {
-    it('should spy on a given field of an object', function () {
+    it('should spy on a given method of an object', function () {
       onObject(testObject).spy('field1')
 
       stubbingEnabled = false
       verify(sinon.spy(testObject, 'field1'), { times: 1 })
     })
 
-    it('should spy on all fields of an object when called with no arguments', function () {
+    it('should spy on all own methods of an object when called with no arguments', function () {
       onObject(testObject).spy()
 
       stubbingEnabled = false
       verify(sinon.spy(testObject, 'field1'), { times: 1 })
       verify(sinon.spy(testObject, 'field2'), { times: 1 })
+      verify(sinon.spy(testObject, 'proto1'), { times: 0 })
+      verify(sinon.spy(testObject, 'proto2'), { times: 0 })
+    })
+
+    it('should also spy methods of the direct prototype when called with 1', function () {
+      onObject(testObject).spy(1)
+
+      stubbingEnabled = false
+      verify(sinon.spy(testObject, 'field1'), { times: 1 })
+      verify(sinon.spy(testObject, 'field2'), { times: 1 })
+      verify(sinon.spy(testObject, 'proto1'), { times: 1 })
+      verify(sinon.spy(testObject, 'proto2'), { times: 0 })
+    })
+
+    it('should also spy methods of all prototypes when called with n large enough', function () {
+      onObject(testObject).spy(8)
+
+      stubbingEnabled = false
+      verify(sinon.spy(testObject, 'field1'), { times: 1 })
+      verify(sinon.spy(testObject, 'field2'), { times: 1 })
+      verify(sinon.spy(testObject, 'proto1'), { times: 1 })
+      verify(sinon.spy(testObject, 'proto2'), { times: 1 })
     })
 
     it('should spy on a list of methods', function () {
