@@ -199,6 +199,12 @@ describe('onObject', function () {
 
       expect(testObject.field1).to.equal('replacement')
     })
+
+    it('should be able to replace an already replaced field', function () {
+      onObject(testObject).replace('field1', 'replacement1').replace('field1', 'replacement2')
+
+      expect(testObject.field1).to.equal('replacement2')
+    })
   })
 
   describe('restore', function () {
