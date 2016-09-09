@@ -67,13 +67,10 @@ var applyToEachFunctionKeyInObject = function (appliedFunction, object) {
 }
 
 var applyToEachFunctionKeyInPrototypeChain = function (appliedFunction, object, prototypeLevels) {
-  var currentLevel = 0
-  var currentObject = object
-  do {
-    applyToEachFunctionKeyInObject(appliedFunction, currentObject)
-    currentObject = Object.getPrototypeOf(currentObject)
-    currentLevel++
-  } while (currentLevel <= prototypeLevels && currentObject)
+  if (object && prototypeLevels >= 0) {
+    applyToEachFunctionKeyInObject(appliedFunction, object)
+    applyToEachFunctionKeyInPrototypeChain(appliedFunction, Object.getPrototypeOf(object), prototypeLevels - 1)
+  }
 }
 
 function getArrayFromArrayLikeObject (args) {
