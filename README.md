@@ -20,13 +20,13 @@ Provides an interface to stub and spy on methods of an object and to replace fie
 replacements are automatically passed to any `afterEach` function in scope and are thus restored on teardown.
 
 * `.stub()`   
-    Replaces all own methods of an object with stubs.
+    Replaces all own methods of an object by stubs.
 * `.stub(n)`   
-    Replaces all own and inherited methods of an object with stubs going up to `n` levels up the prototype chain.
+    Replaces all own and inherited methods of an object by stubs going up to `n` levels up the prototype chain.
 * `.stub('method1' <,'method2' <...>>)`  
-    Replaces only the given methods with stubs.
+    Replaces only the given methods by stubs.
 * `.stub('method', replacementFunction)`  
-    Replaces a given method with a stub with the provided functionality.
+    Replaces a given method by a stub with the provided functionality.
 * `.spy()`  
     Spies on all own methods of an object.
 * `.spy(n)`   
@@ -34,7 +34,7 @@ replacements are automatically passed to any `afterEach` function in scope and a
 * `.spy('method1' <,'method2' <...>>)`  
     Spies on the given methods of an object.
 * `.replace('field', replacementValue)`  
-    Replaces a given field with another value.
+    Replaces a given field by another value.
 
 All of the above methods can be chained. In case different method calls would modify the same field or method, only the
 last method call is used, i.e.,
