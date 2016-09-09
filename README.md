@@ -25,6 +25,8 @@ replacements are automatically passed to any `afterEach` function in scope and a
     Replaces a given method with a stub with the provided functionality.
 * `.spy()`  
     Spies on all own methods of an object.
+* `.spy(n)`   
+    Spies on all own and inherited methods of an object going up to `n` levels up the prototype chain.
 * `.spy('method1' <,'method2' <...>>)`  
     Spies on the given methods of an object.
 * `.replace('field', replacementValue)`  
@@ -35,7 +37,7 @@ last method call is used, i.e.,
 ```javascript
 onObject(myObject).spy().stub('stubbedMethod')
 ```
-spies on all methods of `myObject` except `.stubbedMethod`, which is replaced by a stub. This also works across
+spies on all own methods of `myObject` except `.stubbedMethod`, which is replaced by a stub. This also works across
 different calls to `onObject`, i.e.
 ```javascript
 onObject(myObject).spy()
