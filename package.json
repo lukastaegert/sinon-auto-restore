@@ -40,17 +40,17 @@
   "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "codecov": "^1.0.1",
-    "eslint": "^3.16.1",
-    "eslint-config-standard": "^7.0.0",
+    "codecov": "^2.0.2",
+    "eslint": "^3.17.1",
+    "eslint-config-standard": "^7.0.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^2.1.1",
     "husky": "^0.13.2",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "semantic-release": "^6.3.2",
-    "testdouble": "^1.11.2",
-    "validate-commit-msg": "^2.11.1"
+    "testdouble": "^2.0.2",
+    "validate-commit-msg": "^2.11.2"
   },
   "dependencies": {
     "ramda": "^0.23.0"
