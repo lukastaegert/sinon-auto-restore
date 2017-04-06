@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-env mocha */
+
 var sinonAutoRestore = require('../index')
 var onObject = sinonAutoRestore.onObject
 var configure = sinonAutoRestore.configure
@@ -16,16 +19,16 @@ var afterEachHook = function (callback) {
 var stubbingEnabled = false
 
 function createSinonTestDouble () {
-  sinon = td.object([ 'stub', 'spy' ])
+  sinon = td.object(['stub', 'spy'])
   global.sinon = sinon
-  td.when(sinon.stub(isA(Object), isA(String)), { ignoreExtraArgs: true }).thenDo(sinonStub)
+  td.when(sinon.stub(isA(Object), isA(String)), {ignoreExtraArgs: true}).thenDo(sinonStub)
   td.when(sinon.stub()).thenDo(sinonGetStub)
   td.when(sinon.spy(isA(Object), isA(String))).thenDo(sinonSpy)
   td.when(sinon.spy(isA(Function))).thenDo(sinonGetFunctionSpy)
 }
 
 function checkIfStub (object, methodName) {
-  var method = object[ methodName ]
+  var method = object[methodName]
   if (method.isStub || method.isSpiedOn) {
     throw new Error('tried to stub or spy on method ' + methodName + ' which was already stubbed or spied on')
   }
@@ -34,28 +37,28 @@ function checkIfStub (object, methodName) {
 function sinonStub (object, methodName) {
   if (stubbingEnabled) {
     checkIfStub(object, methodName)
-    var originalMethod = object[ methodName ]
-    object[ methodName ] = function () {}
-    object[ methodName ].restore = function () {
-      object[ methodName ] = originalMethod
+    var originalMethod = object[methodName]
+    object[methodName] = function () {}
+    object[methodName].restore = function () {
+      object[methodName] = originalMethod
     }
-    object[ methodName ].isStub = true
-    return object[ methodName ]
+    object[methodName].isStub = true
+    return object[methodName]
   }
 }
 
 function sinonSpy (object, methodName) {
   if (stubbingEnabled) {
     checkIfStub(object, methodName)
-    var originalMethod = object[ methodName ]
-    object[ methodName ] = function () {
+    var originalMethod = object[methodName]
+    object[methodName] = function () {
       originalMethod.apply(this, arguments)
     }
-    object[ methodName ].restore = function () {
-      object[ methodName ] = originalMethod
+    object[methodName].restore = function () {
+      object[methodName] = originalMethod
     }
-    object[ methodName ].isSpiedOn = true
-    return object[ methodName ]
+    object[methodName].isSpiedOn = true
+    return object[methodName]
   }
 }
 
@@ -89,12 +92,12 @@ describe('onObject', function () {
       proto2: function () { return 'p2' }
     }
     var testPrototype1 = Object.create(testPrototype2, {
-      proto1: { writable: true, enumerable: false, value: function () { return 'p1' } }
+      proto1: {writable: true, enumerable: false, value: function () { return 'p1' }}
     })
     testObject = Object.create(testPrototype1, {
-      field1: { writable: true, enumerable: true, value: function () { return 1 } },
-      field2: { writable: true, enumerable: false, value: function () { return 2 } },
-      field3: { writable: true, enumerable: true, value: 'my string' }
+      field1: {writable: true, enumerable: true, value: function () { return 1 }},
+      field2: {writable: true, enumerable: false, value: function () { return 2 }},
+      field3: {writable: true, enumerable: true, value: 'my string'}
     })
     onAfterEach = null
   })
@@ -111,30 +114,30 @@ describe('onObject', function () {
       onObject(testObject).stub()
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1'), { times: 1 })
-      verify(sinon.stub(testObject, 'field2'), { times: 1 })
-      verify(sinon.stub(testObject, 'proto1'), { times: 0 })
-      verify(sinon.stub(testObject, 'proto2'), { times: 0 })
+      verify(sinon.stub(testObject, 'field1'), {times: 1})
+      verify(sinon.stub(testObject, 'field2'), {times: 1})
+      verify(sinon.stub(testObject, 'proto1'), {times: 0})
+      verify(sinon.stub(testObject, 'proto2'), {times: 0})
     })
 
     it('should also stub methods of the direct prototype when called with 1', function () {
       onObject(testObject).stub(1)
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1'), { times: 1 })
-      verify(sinon.stub(testObject, 'field2'), { times: 1 })
-      verify(sinon.stub(testObject, 'proto1'), { times: 1 })
-      verify(sinon.stub(testObject, 'proto2'), { times: 0 })
+      verify(sinon.stub(testObject, 'field1'), {times: 1})
+      verify(sinon.stub(testObject, 'field2'), {times: 1})
+      verify(sinon.stub(testObject, 'proto1'), {times: 1})
+      verify(sinon.stub(testObject, 'proto2'), {times: 0})
     })
 
     it('should also stub methods of all prototypes when called with n large enough', function () {
       onObject(testObject).stub(8)
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1'), { times: 1 })
-      verify(sinon.stub(testObject, 'field2'), { times: 1 })
-      verify(sinon.stub(testObject, 'proto1'), { times: 1 })
-      verify(sinon.stub(testObject, 'proto2'), { times: 1 })
+      verify(sinon.stub(testObject, 'field1'), {times: 1})
+      verify(sinon.stub(testObject, 'field2'), {times: 1})
+      verify(sinon.stub(testObject, 'proto1'), {times: 1})
+      verify(sinon.stub(testObject, 'proto2'), {times: 1})
     })
 
     it('should stub implementing a given functionality', function () {
@@ -142,15 +145,15 @@ describe('onObject', function () {
       onObject(testObject).stub('field1', replacementFunction)
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1', replacementFunction), { times: 1 })
+      verify(sinon.stub(testObject, 'field1', replacementFunction), {times: 1})
     })
 
     it('should stub a list of methods', function () {
       onObject(testObject).stub('field1', 'field2')
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1'), { times: 1 })
-      verify(sinon.stub(testObject, 'field2'), { times: 1 })
+      verify(sinon.stub(testObject, 'field1'), {times: 1})
+      verify(sinon.stub(testObject, 'field2'), {times: 1})
     })
 
     it('should allow stubbing a list of methods while also providing functionalities', function () {
@@ -159,8 +162,8 @@ describe('onObject', function () {
       onObject(testObject).stub('field1', replacementFunction1, 'field2', replacementFunction2)
 
       stubbingEnabled = false
-      verify(sinon.stub(testObject, 'field1', replacementFunction1), { times: 1 })
-      verify(sinon.stub(testObject, 'field2', replacementFunction2), { times: 1 })
+      verify(sinon.stub(testObject, 'field1', replacementFunction1), {times: 1})
+      verify(sinon.stub(testObject, 'field2', replacementFunction2), {times: 1})
     })
 
     it('should not fail if stubbing an already stubbed method', function () {
@@ -179,45 +182,45 @@ describe('onObject', function () {
       onObject(testObject).spy('field1')
 
       stubbingEnabled = false
-      verify(sinon.spy(testObject, 'field1'), { times: 1 })
+      verify(sinon.spy(testObject, 'field1'), {times: 1})
     })
 
     it('should spy on all own methods of an object when called with no arguments', function () {
       onObject(testObject).spy()
 
       stubbingEnabled = false
-      verify(sinon.spy(testObject, 'field1'), { times: 1 })
-      verify(sinon.spy(testObject, 'field2'), { times: 1 })
-      verify(sinon.spy(testObject, 'proto1'), { times: 0 })
-      verify(sinon.spy(testObject, 'proto2'), { times: 0 })
+      verify(sinon.spy(testObject, 'field1'), {times: 1})
+      verify(sinon.spy(testObject, 'field2'), {times: 1})
+      verify(sinon.spy(testObject, 'proto1'), {times: 0})
+      verify(sinon.spy(testObject, 'proto2'), {times: 0})
     })
 
     it('should also spy methods of the direct prototype when called with 1', function () {
       onObject(testObject).spy(1)
 
       stubbingEnabled = false
-      verify(sinon.spy(testObject, 'field1'), { times: 1 })
-      verify(sinon.spy(testObject, 'field2'), { times: 1 })
-      verify(sinon.spy(testObject, 'proto1'), { times: 1 })
-      verify(sinon.spy(testObject, 'proto2'), { times: 0 })
+      verify(sinon.spy(testObject, 'field1'), {times: 1})
+      verify(sinon.spy(testObject, 'field2'), {times: 1})
+      verify(sinon.spy(testObject, 'proto1'), {times: 1})
+      verify(sinon.spy(testObject, 'proto2'), {times: 0})
     })
 
     it('should also spy methods of all prototypes when called with n large enough', function () {
       onObject(testObject).spy(8)
 
       stubbingEnabled = false
-      verify(sinon.spy(testObject, 'field1'), { times: 1 })
-      verify(sinon.spy(testObject, 'field2'), { times: 1 })
-      verify(sinon.spy(testObject, 'proto1'), { times: 1 })
-      verify(sinon.spy(testObject, 'proto2'), { times: 1 })
+      verify(sinon.spy(testObject, 'field1'), {times: 1})
+      verify(sinon.spy(testObject, 'field2'), {times: 1})
+      verify(sinon.spy(testObject, 'proto1'), {times: 1})
+      verify(sinon.spy(testObject, 'proto2'), {times: 1})
     })
 
     it('should spy on a list of methods', function () {
       onObject(testObject).spy('field1', 'field2')
 
       stubbingEnabled = false
-      verify(sinon.spy(testObject, 'field1'), { times: 1 })
-      verify(sinon.spy(testObject, 'field2'), { times: 1 })
+      verify(sinon.spy(testObject, 'field1'), {times: 1})
+      verify(sinon.spy(testObject, 'field2'), {times: 1})
     })
 
     it('should not fail if spying on an already spied upon method', function () {
@@ -263,21 +266,21 @@ describe('onObject', function () {
 
   describe('the auto restore functionality', function () {
     it('should not register a callback with the afterEachHook if autoRestore is false', function () {
-      configure({ autoRestore: false, afterEachHook: afterEachHook })
+      configure({autoRestore: false, afterEachHook: afterEachHook})
       onObject(testObject)
 
       expect(onAfterEach).to.be.null
     })
 
     it('should register a callback with the afterEachHook if autoReset is true', function () {
-      configure({ autoRestore: true, afterEachHook: afterEachHook })
+      configure({autoRestore: true, afterEachHook: afterEachHook})
       onObject(testObject)
 
       expect(onAfterEach).to.be.a('function')
     })
 
     it('should restore all stubbed, spied and replaced fields on afterEach if autoreset is true', function () {
-      configure({ autoRestore: true, afterEachHook: afterEachHook })
+      configure({autoRestore: true, afterEachHook: afterEachHook})
       onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement')
       onAfterEach()
 
@@ -290,7 +293,7 @@ describe('onObject', function () {
       ' provided', function () {
       var oldAfterEach = global.afterEach
       global.afterEach = afterEachHook
-      configure({ autoRestore: true })
+      configure({autoRestore: true})
       onObject(testObject)
 
       expect(onAfterEach).to.be.a('function')
@@ -301,7 +304,7 @@ describe('onObject', function () {
       ' provided', function () {
       var oldAfterEach = global.afterEach
       global.afterEach = afterEachHook
-      configure({ autoRestore: true })
+      configure({autoRestore: true})
       onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement')
       onAfterEach()
 

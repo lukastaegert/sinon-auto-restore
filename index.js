@@ -1,4 +1,5 @@
 /* global sinon, afterEach */
+
 var R = require('ramda')
 var activeChanges = []
 
@@ -7,25 +8,25 @@ var isActiveChangesForThis = function (activeChanges) {
 }
 
 function getActiveChangesForObject (object) {
-  var activeChangesForObject = activeChanges.filter(isActiveChangesForThis, object)[ 0 ]
+  var activeChangesForObject = activeChanges.filter(isActiveChangesForThis, object)[0]
   if (!activeChangesForObject) {
-    activeChangesForObject = { object: object, activeStubs: {}, activeReplacements: {} }
+    activeChangesForObject = {object: object, activeStubs: {}, activeReplacements: {}}
     activeChanges.push(activeChangesForObject)
   }
   return activeChangesForObject
 }
 
 var createStubOrSpyForObjectKey = R.curry(function (stubbingFunction, object, args) {
-  restoreKey(object, args[ 0 ])
+  restoreKey(object, args[0])
   var activeStubs = getActiveChangesForObject(object).activeStubs
-  activeStubs[ args[ 0 ] ] = R.apply(stubbingFunction, R.concat([ object ], args))
+  activeStubs[args[0]] = R.apply(stubbingFunction, R.concat([object], args))
 })
 
 function replaceObjectKey (object, key, replacement) {
   restoreKey(object, key)
   var activeReplacements = getActiveChangesForObject(object).activeReplacements
-  activeReplacements[ key ] = object[ key ]
-  object[ key ] = replacement
+  activeReplacements[key] = object[key]
+  object[key] = replacement
 }
 
 function restoreKey (object, key) {
@@ -34,12 +35,12 @@ function restoreKey (object, key) {
   var activeReplacements = activeChangesForObject.activeReplacements
 
   if (activeStubs.hasOwnProperty(key)) {
-    activeStubs[ key ].restore()
-    delete activeStubs[ key ]
+    activeStubs[key].restore()
+    delete activeStubs[key]
   }
   if (activeReplacements.hasOwnProperty(key)) {
-    object[ key ] = activeReplacements[ key ]
-    delete activeReplacements[ key ]
+    object[key] = activeReplacements[key]
+    delete activeReplacements[key]
   }
 }
 
@@ -52,10 +53,10 @@ var applyToEachKeyInObject = function (object, appliedFunction) {
 
 function restoreActiveChangesForObject (activeChangesForObject) {
   applyToEachKeyInObject(activeChangesForObject.activeStubs, function (key) {
-    activeChangesForObject.activeStubs[ key ].restore()
+    activeChangesForObject.activeStubs[key].restore()
   })
   applyToEachKeyInObject(activeChangesForObject.activeReplacements, function (key) {
-    activeChangesForObject.object[ key ] = activeChangesForObject.activeReplacements[ key ]
+    activeChangesForObject.object[key] = activeChangesForObject.activeReplacements[key]
   })
 }
 
@@ -82,7 +83,7 @@ function getArrayFromArrayLikeObject (args) {
 var parseStringFunctionArrayToArguments = function (argsArray) {
   return R.reduce(function (arrayOfArguments, argument) {
     if (typeof argument !== 'function') {
-      arrayOfArguments.push([ argument ])
+      arrayOfArguments.push([argument])
     } else {
       R.last(arrayOfArguments).push(argument)
     }
@@ -122,8 +123,8 @@ module.exports.onObject = function (target) {
 
       if (args.length === 0) {
         applyToEachFunctionKeyInObject(stubOrSpy, target)
-      } else if (args.length === 1 && typeof args[ 0 ] === 'number') {
-        applyToEachFunctionKeyInPrototypeChain(stubOrSpy, target, args[ 0 ])
+      } else if (args.length === 1 && typeof args[0] === 'number') {
+        applyToEachFunctionKeyInPrototypeChain(stubOrSpy, target, args[0])
       } else {
         R.compose(
           R.forEach(createStubOrSpyForObjectKey(stubbingFunction, target)),
