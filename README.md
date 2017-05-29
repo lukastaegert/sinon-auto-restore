@@ -1,4 +1,6 @@
 # sinon-auto-restore
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/lukastaegert/sinon-auto-restore.svg)](https://greenkeeper.io/)
 [![npm](https://img.shields.io/npm/v/sinon-auto-restore.svg?maxAge=3600)](https://www.npmjs.com/package/sinon-auto-restore)
 [![codecov.io](https://img.shields.io/codecov/c/github/lukastaegert/sinon-auto-restore.svg?maxAge=3600)](http://codecov.io/github/lukastaegert/sinon-auto-restore)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?maxAge=3600)](http://standardjs.com/)
