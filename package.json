@@ -6,6 +6,9 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "jsnext:main": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
   "config": {
     "validate-commit-msg": {
       "types": [
