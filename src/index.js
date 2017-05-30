@@ -1,4 +1,4 @@
-/* global sinon, afterEach */
+/* global sinon */
 
 import {
   __, apply, compose, concat, curry, filter, forEach, keys, last, propIs, reduce
@@ -90,30 +90,12 @@ const parseStringFunctionArrayToArguments = function (argsArray) {
   }, [])(argsArray)
 }
 
-let afterEachHook
-let autoRestore = true
-
 export function restore () {
   activeChanges.forEach(restoreActiveChangesForObject)
   activeChanges.length = 0
 }
 
-export function configure (options) {
-  afterEachHook = afterEachHook || options.afterEachHook
-  if (typeof options.autoRestore !== 'undefined') {
-    autoRestore = options.autoRestore
-  }
-}
-
 export function onObject (target) {
-  if (autoRestore) {
-    if (typeof afterEachHook === 'undefined') {
-      afterEach(restore)
-    } else {
-      afterEachHook(restore)
-    }
-  }
-
   const getTargetStubber = stubbingFunction => function stubOrSpy () {
     const args = getArrayFromArrayLikeObject(arguments)
 
