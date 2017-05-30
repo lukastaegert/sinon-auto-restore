@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-env mocha */
 
-var sinonAutoRestore = require('../index')
+var sinonAutoRestore = require('../dist/index')
 var onObject = sinonAutoRestore.onObject
 var configure = sinonAutoRestore.configure
 var restore = sinonAutoRestore.restore
