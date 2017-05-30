@@ -8,11 +8,10 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/lukastaegert/sinon-auto-restore.svg)](https://greenkeeper.io/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?maxAge=3600)](https://github.com/semantic-release/semantic-release)
 
-A library that provides a streamlined interface for creating lots of [`sinon`](https://github.com/sinonjs/sinon) stubs
-and spies on objects that can be automatically restored with a simple call to `restore` that can be
-placed in your global teardown function. Beyond that, it also allows you to replace fields in the same
-way. Created to be used in a [`mocha`](https://github.com/mochajs/mocha) setup but can
-be configured to work with other test frameworks.
+A library that provides a streamlined interface for creating lots of
+[`sinon`](https://github.com/sinonjs/sinon) stubs and spies on objects that can be automatically
+restored with a simple call to `restore` that can be placed in your global teardown function.
+Beyond that, it also allows you to replace fields in the same way.
 
 ## API
 
