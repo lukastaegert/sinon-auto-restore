@@ -14,21 +14,37 @@ function createSinonMock () {
       if (arguments.length === 0) {
         return sinonGetStub()
       }
-      if (arguments.length === 2 && typeof object === 'object' && typeof methodName === 'string') {
+      if (
+        arguments.length === 2 &&
+        typeof object === 'object' &&
+        typeof methodName === 'string'
+      ) {
         return sinonStub(object, methodName)
       }
-      if (arguments.length === 3 && typeof object === 'object' && typeof methodName === 'string' &&
-        typeof implementation === 'function') {
+      if (
+        arguments.length === 3 &&
+        typeof object === 'object' &&
+        typeof methodName === 'string' &&
+        typeof implementation === 'function'
+      ) {
         return sinonStub(object, methodName, implementation)
       }
-      throw new Error('Called sinon.stub with ' + arguments.length + ' invalid arguments: ' +
-        Array.prototype.slice.call(arguments))
+      throw new Error(
+        'Called sinon.stub with ' +
+          arguments.length +
+          ' invalid arguments: ' +
+          Array.prototype.slice.call(arguments)
+      )
     },
     spy: function (target, methodName) {
       if (arguments.length === 1 && typeof target === 'function') {
         return sinonGetFunctionSpy(target)
       }
-      if (arguments.length === 2 && typeof target === 'object' && typeof methodName === 'string') {
+      if (
+        arguments.length === 2 &&
+        typeof target === 'object' &&
+        typeof methodName === 'string'
+      ) {
         return sinonSpy(target, methodName)
       }
       throw new Error('Called sinon.spy with invalid arguments ', arguments)
@@ -41,7 +57,10 @@ function checkIfStub (object, methodName) {
   var method = object[methodName]
   if (method.isStub || method.isSpiedOn) {
     throw new Error(
-      'tried to stub or spy on method ' + methodName + ' which was already stubbed or spied on')
+      'tried to stub or spy on method ' +
+        methodName +
+        ' which was already stubbed or spied on'
+    )
   }
 }
 
@@ -83,15 +102,35 @@ function sinonGetFunctionSpy (functionToBeSpiedOn) {
 beforeEach(function () {
   createSinonMock()
   var testPrototype2 = {
-    proto2: function () { return 'p2' }
+    proto2: function () {
+      return 'p2'
+    }
   }
   var testPrototype1 = Object.create(testPrototype2, {
-    proto1: {writable: true, enumerable: false, value: function () { return 'p1' }}
+    proto1: {
+      writable: true,
+      enumerable: false,
+      value: function () {
+        return 'p1'
+      }
+    }
   })
   testObject = Object.create(testPrototype1, {
-    field1: {writable: true, enumerable: true, value: function () { return 1 }},
-    field2: {writable: true, enumerable: false, value: function () { return 2 }},
-    field3: {writable: true, enumerable: true, value: 'my string'}
+    field1: {
+      writable: true,
+      enumerable: true,
+      value: function () {
+        return 1
+      }
+    },
+    field2: {
+      writable: true,
+      enumerable: false,
+      value: function () {
+        return 2
+      }
+    },
+    field3: { writable: true, enumerable: true, value: 'my string' }
   })
 })
 
@@ -159,7 +198,12 @@ describe('onObject', function () {
       var replacementFunction2 = function (arg) {
         return 'second' + arg
       }
-      onObject(testObject).stub('field1', replacementFunction1, 'proto1', replacementFunction2)
+      onObject(testObject).stub(
+        'field1',
+        replacementFunction1,
+        'proto1',
+        replacementFunction2
+      )
 
       expect(testObject.field1('func')).to.equal('firstfunc')
       expect(testObject.proto1('func')).to.equal('secondfunc')
@@ -169,12 +213,11 @@ describe('onObject', function () {
       onObject(testObject).stub('field1').stub('field1').stub().stub('field1')
     })
 
-    it('should not fail if stubbing the same object method with different onObject calls',
-      function () {
-        onObject(testObject).stub('field1')
-        onObject(testObject).stub()
-        onObject(testObject).stub('field1')
-      })
+    it('should not fail if stubbing the same object method with different onObject calls', function () {
+      onObject(testObject).stub('field1')
+      onObject(testObject).stub()
+      onObject(testObject).stub('field1')
+    })
   })
 
   describe('spy', function () {
@@ -224,12 +267,11 @@ describe('onObject', function () {
       onObject(testObject).spy('field1').spy('field1').spy().spy('field1')
     })
 
-    it('should not fail if spying on the same object method with different onObject calls',
-      function () {
-        onObject(testObject).spy('field1')
-        onObject(testObject).spy()
-        onObject(testObject).spy('field1')
-      })
+    it('should not fail if spying on the same object method with different onObject calls', function () {
+      onObject(testObject).spy('field1')
+      onObject(testObject).spy()
+      onObject(testObject).spy('field1')
+    })
   })
 
   describe('replace', function () {
@@ -246,7 +288,9 @@ describe('onObject', function () {
     })
 
     it('should be able to replace an already replaced field', function () {
-      onObject(testObject).replace('field1', 'replacement1').replace('field1', 'replacement2')
+      onObject(testObject)
+        .replace('field1', 'replacement1')
+        .replace('field1', 'replacement2')
 
       expect(testObject.field1).to.equal('replacement2')
     })
@@ -255,7 +299,10 @@ describe('onObject', function () {
 
 describe('restore', function () {
   it('should remove all stubs, spies and replacements', function () {
-    onObject(testObject).stub('field1').spy('field2').replace('field3', 'replacement')
+    onObject(testObject)
+      .stub('field1')
+      .spy('field2')
+      .replace('field3', 'replacement')
     restore()
     expect(testObject.field1.restore).to.be.undefined
     expect(testObject.field2.restore).to.be.undefined

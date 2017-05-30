@@ -1,22 +1,43 @@
 /* global sinon */
 
 import {
-  __, apply, compose, concat, curry, filter, forEach, keys, last, propIs, reduce
+  __,
+  apply,
+  compose,
+  concat,
+  curry,
+  filter,
+  forEach,
+  keys,
+  last,
+  propIs,
+  reduce
 } from 'ramda'
 const activeChanges = []
 
-const isActiveChangeForObject = object => activeChange => activeChange.object === object
+const isActiveChangeForObject = object => activeChange =>
+  activeChange.object === object
 
 function getActiveChangesForObject (object) {
-  let activeChangesForObject = activeChanges.filter(isActiveChangeForObject(object))[0]
+  let activeChangesForObject = activeChanges.filter(
+    isActiveChangeForObject(object)
+  )[0]
   if (!activeChangesForObject) {
-    activeChangesForObject = {object: object, activeStubs: {}, activeReplacements: {}}
+    activeChangesForObject = {
+      object: object,
+      activeStubs: {},
+      activeReplacements: {}
+    }
     activeChanges.push(activeChangesForObject)
   }
   return activeChangesForObject
 }
 
-const createStubOrSpyForObjectKey = curry(function (stubbingFunction, object, args) {
+const createStubOrSpyForObjectKey = curry(function (
+  stubbingFunction,
+  object,
+  args
+) {
   restoreKey(object, args[0])
   const activeStubs = getActiveChangesForObject(object).activeStubs
   activeStubs[args[0]] = apply(stubbingFunction, concat([object], args))
@@ -24,7 +45,8 @@ const createStubOrSpyForObjectKey = curry(function (stubbingFunction, object, ar
 
 function replaceObjectKey (object, key, replacement) {
   restoreKey(object, key)
-  const activeReplacements = getActiveChangesForObject(object).activeReplacements
+  const activeReplacements = getActiveChangesForObject(object)
+    .activeReplacements
   activeReplacements[key] = object[key]
   object[key] = replacement
 }
@@ -44,32 +66,37 @@ function restoreKey (object, key) {
   }
 }
 
-const applyToEachKeyInObject = (object, appliedFunction) => compose(
-  forEach(appliedFunction),
-  keys
-)(object)
+const applyToEachKeyInObject = (object, appliedFunction) =>
+  compose(forEach(appliedFunction), keys)(object)
 
 function restoreActiveChangesForObject (activeChangesForObject) {
   applyToEachKeyInObject(activeChangesForObject.activeStubs, key => {
     activeChangesForObject.activeStubs[key].restore()
   })
   applyToEachKeyInObject(activeChangesForObject.activeReplacements, key => {
-    activeChangesForObject.object[key] = activeChangesForObject.activeReplacements[key]
+    activeChangesForObject.object[key] =
+      activeChangesForObject.activeReplacements[key]
   })
 }
 
 const applyToEachFunctionKeyInObject = function (appliedFunction, object) {
-  compose(
-    forEach(appliedFunction),
-    filter(propIs(Function, __, object))
-  )(Object.getOwnPropertyNames(object))
+  compose(forEach(appliedFunction), filter(propIs(Function, __, object)))(
+    Object.getOwnPropertyNames(object)
+  )
 }
 
-const applyToEachFunctionKeyInPrototypeChain = function (appliedFunction, object, prototypeLevels) {
+const applyToEachFunctionKeyInPrototypeChain = function (
+  appliedFunction,
+  object,
+  prototypeLevels
+) {
   if (object && prototypeLevels >= 0) {
     applyToEachFunctionKeyInObject(appliedFunction, object)
-    applyToEachFunctionKeyInPrototypeChain(appliedFunction, Object.getPrototypeOf(object),
-      prototypeLevels - 1)
+    applyToEachFunctionKeyInPrototypeChain(
+      appliedFunction,
+      Object.getPrototypeOf(object),
+      prototypeLevels - 1
+    )
   }
 }
 
@@ -96,21 +123,22 @@ export function restore () {
 }
 
 export function onObject (target) {
-  const getTargetStubber = stubbingFunction => function stubOrSpy () {
-    const args = getArrayFromArrayLikeObject(arguments)
+  const getTargetStubber = stubbingFunction =>
+    function stubOrSpy () {
+      const args = getArrayFromArrayLikeObject(arguments)
 
-    if (args.length === 0) {
-      applyToEachFunctionKeyInObject(stubOrSpy, target)
-    } else if (args.length === 1 && typeof args[0] === 'number') {
-      applyToEachFunctionKeyInPrototypeChain(stubOrSpy, target, args[0])
-    } else {
-      compose(
-        forEach(createStubOrSpyForObjectKey(stubbingFunction, target)),
-        parseStringFunctionArrayToArguments
-      )(args)
+      if (args.length === 0) {
+        applyToEachFunctionKeyInObject(stubOrSpy, target)
+      } else if (args.length === 1 && typeof args[0] === 'number') {
+        applyToEachFunctionKeyInPrototypeChain(stubOrSpy, target, args[0])
+      } else {
+        compose(
+          forEach(createStubOrSpyForObjectKey(stubbingFunction, target)),
+          parseStringFunctionArrayToArguments
+        )(args)
+      }
+      return this
     }
-    return this
-  }
 
   function replace (key, replacement) {
     replaceObjectKey(target, key, replacement)
