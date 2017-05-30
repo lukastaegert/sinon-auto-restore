@@ -9,7 +9,8 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?maxAge=3600)](https://github.com/semantic-release/semantic-release)
 
 A library that provides a streamlined interface for creating lots of [`sinon`](https://github.com/sinonjs/sinon) stubs
-and spies on objects that will be automatically restored. Beyond that, it also allows you to replace fields in the same
+and spies on objects that can be automatically restored with a simple call to `restore` that can be
+placed in your global teardown function. Beyond that, it also allows you to replace fields in the same
 way. Created to be used in a [`mocha`](https://github.com/mochajs/mocha) setup but can
 be configured to work with other test frameworks.
 
@@ -17,8 +18,7 @@ be configured to work with other test frameworks.
 
 ### `onObject(objectName)`
 
-Provides an interface to stub and spy on methods of an object and to replace fields. By default, all stubs, spies and
-replacements are automatically passed to any `afterEach` function in scope and are thus restored on teardown.
+Provides an interface to stub and spy on methods of an object and to replace fields.
 
 * `.stub()`   
     Replaces all own methods of an object by stubs.
@@ -52,15 +52,4 @@ would have exactly the same effect.
 
 ### `restore()`
 
-Restores all stubs, spies and replacements. Only necessary if `configure(…)` is called with `autoRestore: false`.
-
-### `configure({autoRestore: true, afterEachHook: afterEach})`
-
-Allows configuring the auto restore behavior.
-
-* `autoRestore`:  
-    When set to false, you should manually call `restore` after each test to remove all stubs. Otherwise, this is
-    automatically done during teardown. Defaults to `true`.
-* `afterEachHook`:  
-    Allows for setting a different function to be called to register the `restore` hook. Otherwise, any function
-    named `afterEach` which is in scope when `onObject` is called is used.
+Restores all stubs, spies and replacements.
