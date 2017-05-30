@@ -1,9 +1,11 @@
 # sinon-auto-restore
+
 [![npm](https://img.shields.io/npm/v/sinon-auto-restore.svg?maxAge=3600)](https://www.npmjs.com/package/sinon-auto-restore)
 [![codecov.io](https://img.shields.io/codecov/c/github/lukastaegert/sinon-auto-restore.svg?maxAge=3600)](http://codecov.io/github/lukastaegert/sinon-auto-restore)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?maxAge=3600)](http://standardjs.com/)
 [![npm](https://img.shields.io/npm/dm/sinon-auto-restore.svg?maxAge=3600)](https://www.npmjs.com/package/sinon-auto-restore)
 [![David](https://img.shields.io/david/lukastaegert/sinon-auto-restore.svg?maxAge=3600)](https://david-dm.org/lukastaegert/sinon-auto-restore)
+[![Greenkeeper badge](https://badges.greenkeeper.io/lukastaegert/sinon-auto-restore.svg)](https://greenkeeper.io/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?maxAge=3600)](https://github.com/semantic-release/semantic-release)
 
 A library that provides a streamlined interface for creating lots of [`sinon`](https://github.com/sinonjs/sinon) stubs
