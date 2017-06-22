@@ -42,7 +42,7 @@
     "babel-preset-env": "^1.5.1",
     "chai": "^4.0.0",
     "codecov": "^2.2.0",
-    "husky": "^0.13.3",
+    "husky": "^0.14.0",
     "istanbul": "^0.4.5",
     "lint-staged": "^4.0.0",
     "mocha": "^3.4.2",
