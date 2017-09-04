@@ -210,7 +210,11 @@ describe('onObject', function () {
     })
 
     it('should not fail if stubbing an already stubbed method', function () {
-      onObject(testObject).stub('field1').stub('field1').stub().stub('field1')
+      onObject(testObject)
+        .stub('field1')
+        .stub('field1')
+        .stub()
+        .stub('field1')
     })
 
     it('should not fail if stubbing the same object method with different onObject calls', function () {
@@ -264,7 +268,11 @@ describe('onObject', function () {
     })
 
     it('should not fail if spying on an already spied upon method', function () {
-      onObject(testObject).spy('field1').spy('field1').spy().spy('field1')
+      onObject(testObject)
+        .spy('field1')
+        .spy('field1')
+        .spy()
+        .spy('field1')
     })
 
     it('should not fail if spying on the same object method with different onObject calls', function () {
@@ -282,7 +290,9 @@ describe('onObject', function () {
     })
 
     it('should replace instead of stubbing when replacing a stubbed field', function () {
-      onObject(testObject).stub('field1').replace('field1', 'replacement')
+      onObject(testObject)
+        .stub('field1')
+        .replace('field1', 'replacement')
 
       expect(testObject.field1).to.equal('replacement')
     })

@@ -34,30 +34,37 @@
   },
   "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "dependencies": {
-    "ramda": ">= 0.23.0"
+    "ramda": "^0.24.1"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-ramda": "^1.2.0",
-    "babel-preset-env": "^1.5.1",
-    "chai": "^4.0.0",
-    "codecov": "^2.2.0",
+    "babel-plugin-ramda": "^1.3.0",
+    "babel-preset-env": "^1.6.0",
+    "chai": "^4.1.2",
+    "codecov": "^2.3.0",
+    "eslint": "^4.2.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
     "husky": "^0.14.0",
     "istanbul": "^0.4.5",
     "lint-staged": "^4.0.0",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.0",
     "prettier-standard": "^6.0.0",
     "rollup": "^0.49.1",
     "rollup-plugin-babel": "^3.0.0",
     "semantic-release": "^7.0.2",
-    "standard": "^10.0.2",
-    "validate-commit-msg": "^2.12.1"
+    "validate-commit-msg": "^2.14.0"
   },
   "scripts": {
     "test": "node build && mocha",
     "lint": "prettier-standard *.js src/**/*.js test/**/*.js",
     "semantic-release": "node build && semantic-release pre && npm publish && semantic-release post",
     "precommit": "lint-staged",
+    "postcommit": "git reset",
     "commitmsg": "validate-commit-msg",
     "prepush": "npm test",
     "postmerge": "npm install && npm prune",
@@ -65,8 +72,8 @@
   },
   "lint-staged": {
     "*.js": [
-      "prettier-standard",
-      "standard --fix",
+      "npm run lint",
+      "eslint --fix",
       "git add"
     ]
   }

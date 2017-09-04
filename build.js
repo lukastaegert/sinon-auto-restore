@@ -3,7 +3,7 @@ const babel = require('rollup-plugin-babel')
 
 rollup
   .rollup({
-    entry: 'src/index.js',
+    input: 'src/index.js',
     external: [
       'ramda/src/__',
       'ramda/src/apply',
@@ -25,7 +25,7 @@ rollup
             {
               modules: false,
               loose: true,
-              targets: {node: 4}
+              targets: { node: 4 }
             }
           ]
         ],
@@ -35,11 +35,11 @@ rollup
   })
   .then(bundle => {
     bundle.write({
-      dest: 'dist/index.js',
+      file: 'dist/index.js',
       format: 'cjs'
     })
     bundle.write({
-      dest: 'dist/index.mjs',
+      file: 'dist/index.mjs',
       format: 'es'
     })
   })
