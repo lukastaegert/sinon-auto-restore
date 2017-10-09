@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "dependencies": {
-    "ramda": "^0.24.1"
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
