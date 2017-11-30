@@ -9,19 +9,6 @@
   "files": [
     "dist"
   ],
-  "config": {
-    "validate-commit-msg": {
-      "types": [
-        "feat",
-        "fix",
-        "docs",
-        "refactor",
-        "test",
-        "chore",
-        "revert"
-      ]
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/lukastaegert/sinon-auto-restore.git"
@@ -37,38 +24,40 @@
     "ramda": "^0.25.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^5.2.0",
+    "@commitlint/config-angular": "^5.1.1",
     "babel-core": "^6.26.0",
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-ramda": "^1.3.0",
-    "babel-preset-env": "^1.6.0",
+    "babel-plugin-ramda": "^1.4.3",
+    "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
     "codecov": "^3.0.0",
-    "eslint": "^4.2.0",
+    "eslint": "^4.12.1",
     "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-node": "^5.1.1",
-    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "husky": "^0.14.0",
+    "husky": "^0.14.3",
     "istanbul": "^0.4.5",
-    "lint-staged": "^4.0.0",
-    "mocha": "^4.0.0",
-    "prettier-standard": "^7.0.1",
-    "rollup": "^0.50.0",
-    "rollup-plugin-babel": "^3.0.0",
-    "semantic-release": "^8.0.0",
-    "validate-commit-msg": "^2.14.0"
+    "lint-staged": "^5.0.0",
+    "mocha": "^4.0.1",
+    "prettier-standard": "^7.0.3",
+    "rollup": "^0.52.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "semantic-release": "^8.2.0"
   },
   "scripts": {
-    "test": "node build && mocha",
+    "build": "rollup -c",
+    "test": "npm run build && mocha",
     "lint": "prettier-standard *.js src/**/*.js test/**/*.js",
-    "semantic-release": "node build && semantic-release pre && npm publish && semantic-release post",
     "precommit": "lint-staged",
+    "commitmsg": "commitlint -e",
     "postcommit": "git reset",
-    "commitmsg": "validate-commit-msg",
     "prepush": "npm test",
-    "postmerge": "npm install && npm prune",
-    "postrewrite": "npm install && npm prune"
+    "postmerge": "npm install",
+    "postrewrite": "npm install",
+    "semantic-release": "npm run build && semantic-release pre && npm publish && semantic-release post"
   },
   "lint-staged": {
     "*.js": [
