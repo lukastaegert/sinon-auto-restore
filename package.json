@@ -58,7 +58,8 @@
     "prepush": "npm test",
     "postmerge": "npm install",
     "postrewrite": "npm install",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "lint-staged": {
     "*.js": [
