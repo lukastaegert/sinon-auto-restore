@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/lukastaegert/sinon-auto-restore#readme",
   "dependencies": {
-    "ramda": "^0.25.0"
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
